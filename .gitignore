@@ -1,0 +1,19 @@
+# .NET
+**/bin/
+**/obj/
+*.user
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# IDE
+.vs/
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

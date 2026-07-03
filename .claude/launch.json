@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "frontend",
+      "runtimeExecutable": "cmd.exe",
+      "runtimeArgs": ["/c", "C:\\Users\\matth\\OneDrive\\Documents\\GitHub\\tome-v2\\.claude\\run-frontend.cmd"],
+      "port": 5173
+    }
+  ]
+}
