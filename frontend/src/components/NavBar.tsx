@@ -17,6 +17,12 @@ export function NavBar() {
           <NavLink to="/inventory" className={linkClass}>
             Inventory
           </NavLink>
+          <NavLink to="/customers" className={linkClass}>
+            Customers
+          </NavLink>
+          <NavLink to="/sales-orders" className={linkClass}>
+            Sales Orders
+          </NavLink>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm text-gray-500">{user?.username}</span>

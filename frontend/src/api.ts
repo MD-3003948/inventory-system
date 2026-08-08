@@ -4,6 +4,12 @@ import type {
   LoginRequest,
   LoginResponse,
   CurrentUser,
+  Customer,
+  CustomerInput,
+  SalesOrder,
+  SalesOrderInput,
+  SalesOrderStatus,
+  DashboardMetrics,
 } from "./types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -73,4 +79,46 @@ export const itemsApi = {
     }),
   remove: (id: number) =>
     request<void>(`/items/${id}`, { method: "DELETE" }),
+};
+
+export const customersApi = {
+  list: () => request<Customer[]>("/customers"),
+  create: (customer: CustomerInput) =>
+    request<Customer>("/customers", {
+      method: "POST",
+      body: JSON.stringify(customer),
+    }),
+  update: (id: number, customer: CustomerInput) =>
+    request<Customer>(`/customers/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(customer),
+    }),
+  remove: (id: number) =>
+    request<void>(`/customers/${id}`, { method: "DELETE" }),
+};
+
+export const salesOrdersApi = {
+  list: () => request<SalesOrder[]>("/salesorders"),
+  create: (order: SalesOrderInput) =>
+    request<SalesOrder>("/salesorders", {
+      method: "POST",
+      body: JSON.stringify(order),
+    }),
+  updateStatus: (id: number, status: SalesOrderStatus) =>
+    request<SalesOrder>(`/salesorders/${id}/status`, {
+      method: "PUT",
+      body: JSON.stringify({ status }),
+    }),
+  remove: (id: number) =>
+    request<void>(`/salesorders/${id}`, { method: "DELETE" }),
+};
+
+export const dashboardApi = {
+  getMetrics: (fromDate?: string, toDate?: string) => {
+    const params = new URLSearchParams();
+    if (fromDate) params.set("fromDate", fromDate);
+    if (toDate) params.set("toDate", toDate);
+    const query = params.toString();
+    return request<DashboardMetrics>(`/dashboard/metrics${query ? `?${query}` : ""}`);
+  },
 };

@@ -3,6 +3,8 @@ import { LoginPage } from "./components/LoginPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { WelcomePage } from "./components/WelcomePage";
 import { InventoryPage } from "./components/InventoryPage";
+import { CustomersPage } from "./components/CustomersPage";
+import { SalesOrdersPage } from "./components/SalesOrdersPage";
 import { NavBar } from "./components/NavBar";
 
 function AuthenticatedLayout() {
@@ -22,6 +24,8 @@ function App() {
         <Route element={<AuthenticatedLayout />}>
           <Route path="/" element={<WelcomePage />} />
           <Route path="/inventory" element={<InventoryPage />} />
+          <Route path="/customers" element={<CustomersPage />} />
+          <Route path="/sales-orders" element={<SalesOrdersPage />} />
         </Route>
       </Route>
     </Routes>
