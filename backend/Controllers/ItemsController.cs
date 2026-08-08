@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using InventorySystem.Api.Data;
@@ -8,6 +9,7 @@ namespace InventorySystem.Api.Controllers;
 
 [ApiController]
 [Route("api/items")]
+[Authorize]
 public class ItemsController(AppDbContext db) : ControllerBase
 {
     [HttpGet]
