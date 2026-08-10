@@ -16,11 +16,19 @@ public record TopCustomerMetric(
     decimal TotalSpend
 );
 
+public record ActiveCustomerOrderMetric(
+    int CustomerId,
+    string Name,
+    string Company,
+    int ActiveOrderCount
+);
+
 public record DashboardMetricsResponse(
     int SalesOrdersInProgress,
     decimal RevenueInRange,
     DateTimeOffset FromDate,
     DateTimeOffset ToDate,
     List<TopItemMetric> TopItems,
-    List<TopCustomerMetric> TopCustomers
+    List<TopCustomerMetric> TopCustomers,
+    List<ActiveCustomerOrderMetric> ActiveCustomerOrders
 );

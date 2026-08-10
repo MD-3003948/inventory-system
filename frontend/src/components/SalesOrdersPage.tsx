@@ -41,7 +41,7 @@ export function SalesOrdersPage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
+    <div className="mx-auto w-[95%] py-10">
       <h1 className="text-2xl font-semibold">Sales Orders</h1>
       <p className="mt-1 text-sm text-term-green/60">Create and track customer orders.</p>
 

@@ -35,7 +35,7 @@ public class DashboardController(AppDbContext db) : ControllerBase
             .GroupBy(l => l.InventoryItemId)
             .Select(g => new { InventoryItemId = g.Key, QuantitySold = g.Sum(l => l.Quantity) })
             .OrderByDescending(x => x.QuantitySold)
-            .Take(5)
+            .Take(3)
             .Join(db.InventoryItems, x => x.InventoryItemId, i => i.Id, (x, i) =>
                 new TopItemMetric(i.Id, i.Name, i.Sku, x.QuantitySold, i.Quantity))
             .ToListAsync();
@@ -60,7 +60,16 @@ public class DashboardController(AppDbContext db) : ControllerBase
                 new TopCustomerMetric(c.Id, c.Name, c.Company, x.OrderCount, x.TotalSpend))
             .ToListAsync();
 
+        var activeCustomerOrders = await db.SalesOrders
+            .Where(o => o.Status == SalesOrderStatus.Pending || o.Status == SalesOrderStatus.Processing)
+            .GroupBy(o => o.CustomerId)
+            .Select(g => new { CustomerId = g.Key, ActiveOrderCount = g.Count() })
+            .OrderByDescending(x => x.ActiveOrderCount)
+            .Join(db.Customers, x => x.CustomerId, c => c.Id, (x, c) =>
+                new ActiveCustomerOrderMetric(c.Id, c.Name, c.Company, x.ActiveOrderCount))
+            .ToListAsync();
+
         return Ok(new DashboardMetricsResponse(
-            salesOrdersInProgress, revenueInRange, from, to, topItems, topCustomers));
+            salesOrdersInProgress, revenueInRange, from, to, topItems, topCustomers, activeCustomerOrders));
     }
 }

@@ -9,7 +9,7 @@ export function NavBar() {
 
   return (
     <nav className="border-b-4 border-double border-term-amber bg-term-panel">
-      <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
+      <div className="mx-auto flex w-[95%] items-center justify-between py-3">
         <div className="flex gap-6">
           <NavLink to="/" end className={linkClass}>
             Dashboard

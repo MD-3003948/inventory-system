@@ -113,6 +113,13 @@ export interface TopCustomerMetric {
   totalSpend: number;
 }
 
+export interface ActiveCustomerOrderMetric {
+  customerId: number;
+  name: string;
+  company: string;
+  activeOrderCount: number;
+}
+
 export interface DashboardMetrics {
   salesOrdersInProgress: number;
   revenueInRange: number;
@@ -120,4 +127,5 @@ export interface DashboardMetrics {
   toDate: string;
   topItems: TopItemMetric[];
   topCustomers: TopCustomerMetric[];
+  activeCustomerOrders: ActiveCustomerOrderMetric[];
 }
