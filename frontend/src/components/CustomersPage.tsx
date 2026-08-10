@@ -42,8 +42,8 @@ export function CustomersPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="text-2xl font-semibold text-gray-900">Customers</h1>
-      <p className="mt-1 text-sm text-gray-500">Manage customer accounts.</p>
+      <h1 className="text-2xl font-semibold">Customers</h1>
+      <p className="mt-1 text-sm text-term-green/60">Manage customer accounts.</p>
 
       <div className="mt-6">
         <CustomerForm
@@ -53,14 +53,14 @@ export function CustomersPage() {
         />
       </div>
 
-      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-4 text-sm text-term-danger">{error}</p>}
       {loading ? (
-        <p className="mt-6 text-sm text-gray-500">Loading...</p>
+        <p className="mt-6 text-sm text-term-green/60">Loading...</p>
       ) : customers.length === 0 ? (
-        <p className="mt-6 text-sm text-gray-500">No customers yet. Add one above.</p>
+        <p className="mt-6 text-sm text-term-green/60">No customers yet. Add one above.</p>
       ) : (
-        <table className="mt-6 w-full border-collapse overflow-hidden rounded-lg border border-gray-200 text-left text-sm">
-          <thead className="bg-gray-50 text-gray-600">
+        <table className="mt-6 w-full border-collapse border-2 border-term-amber text-left text-sm">
+          <thead className="bg-term-panel text-term-amber">
             <tr>
               <th className="px-4 py-2">Name</th>
               <th className="px-4 py-2">Company</th>
@@ -71,16 +71,16 @@ export function CustomersPage() {
           </thead>
           <tbody>
             {customers.map((c) => (
-              <tr key={c.id} className="border-t border-gray-200">
-                <td className="px-4 py-2 font-medium text-gray-900">{c.name}</td>
-                <td className="px-4 py-2 text-gray-600">{c.company}</td>
-                <td className="px-4 py-2 text-gray-600">{c.email}</td>
-                <td className="px-4 py-2 text-gray-600">{c.phone}</td>
+              <tr key={c.id} className="border-t border-term-amber/30">
+                <td className="px-4 py-2 font-medium">{c.name}</td>
+                <td className="px-4 py-2 text-term-green/70">{c.company}</td>
+                <td className="px-4 py-2 text-term-green/70">{c.email}</td>
+                <td className="px-4 py-2 text-term-green/70">{c.phone}</td>
                 <td className="px-4 py-2 text-right">
-                  <button onClick={() => setEditingCustomer(c)} className="mr-3 text-indigo-600 hover:underline">
+                  <button onClick={() => setEditingCustomer(c)} className="mr-3 text-term-amber hover:underline">
                     Edit
                   </button>
-                  <button onClick={() => handleDelete(c.id)} className="text-red-600 hover:underline">
+                  <button onClick={() => handleDelete(c.id)} className="text-term-danger hover:underline">
                     Delete
                   </button>
                 </td>

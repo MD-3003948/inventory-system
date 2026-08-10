@@ -2,13 +2,13 @@ import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
-  `text-sm font-medium ${isActive ? "text-indigo-600" : "text-gray-600 hover:text-gray-900"}`;
+  `text-sm font-medium uppercase tracking-wide ${isActive ? "text-term-amber" : "text-term-green/60 hover:text-term-green"}`;
 
 export function NavBar() {
   const { user, logout } = useAuth();
 
   return (
-    <nav className="border-b border-gray-200 bg-white">
+    <nav className="border-b-4 border-double border-term-amber bg-term-panel">
       <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
         <div className="flex gap-6">
           <NavLink to="/" end className={linkClass}>
@@ -25,10 +25,10 @@ export function NavBar() {
           </NavLink>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500">{user?.username}</span>
+          <span className="text-sm text-term-green/60">{user?.username}</span>
           <button
             onClick={logout}
-            className="text-sm font-medium text-gray-600 hover:text-gray-900"
+            className="text-sm font-medium uppercase tracking-wide text-term-green/60 hover:text-term-amber"
           >
             Log out
           </button>

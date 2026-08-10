@@ -30,13 +30,13 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-term-bg px-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+        className="terminal-panel w-full max-w-sm p-6"
       >
-        <h1 className="text-xl font-semibold text-gray-900">Inventory System</h1>
-        <p className="mt-1 text-sm text-gray-500">Sign in to continue.</p>
+        <h1 className="text-xl font-semibold">Inventory System</h1>
+        <p className="mt-1 text-sm text-term-green/60">// sign in to continue</p>
 
         <div className="mt-6 flex flex-col gap-3">
           <input
@@ -44,7 +44,7 @@ export function LoginPage() {
             placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="rounded border border-gray-300 px-3 py-2 text-sm"
+            className="terminal-input"
           />
           <input
             required
@@ -52,16 +52,16 @@ export function LoginPage() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="rounded border border-gray-300 px-3 py-2 text-sm"
+            className="terminal-input"
           />
         </div>
 
-        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-3 text-sm text-term-danger">{error}</p>}
 
         <button
           type="submit"
           disabled={submitting}
-          className="mt-4 w-full rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+          className="terminal-button mt-4 w-full"
         >
           {submitting ? "Signing in..." : "Sign In"}
         </button>

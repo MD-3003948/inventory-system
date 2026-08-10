@@ -37,28 +37,28 @@ export function WelcomePage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="text-2xl font-semibold text-gray-900">Welcome, {user?.firstName}!</h1>
-      <p className="mt-1 text-sm text-gray-500">
+      <h1 className="text-2xl font-semibold">Welcome, {user?.firstName}!</h1>
+      <p className="mt-1 text-sm text-term-green/60">
         {user?.organization} &middot; last login{" "}
         {user?.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString() : "N/A"}
       </p>
 
-      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-4 text-sm text-term-danger">{error}</p>}
       {loading || !metrics ? (
-        <p className="mt-6 text-sm text-gray-500">Loading dashboard...</p>
+        <p className="mt-6 text-sm text-term-green/60">Loading dashboard...</p>
       ) : (
         <>
           <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="rounded-lg border border-gray-200 bg-white p-5">
-              <p className="text-sm text-gray-500">Sales Orders In Progress</p>
-              <p className="mt-1 text-3xl font-semibold text-gray-900">
+            <div className="terminal-panel p-5">
+              <p className="text-sm uppercase tracking-wide text-term-amber">Sales Orders In Progress</p>
+              <p className="mt-1 text-3xl font-semibold">
                 {metrics.salesOrdersInProgress}
               </p>
             </div>
 
-            <div className="rounded-lg border border-gray-200 bg-white p-5">
-              <p className="text-sm text-gray-500">Revenue</p>
-              <p className="mt-1 text-3xl font-semibold text-gray-900">
+            <div className="terminal-panel p-5">
+              <p className="text-sm uppercase tracking-wide text-term-amber">Revenue</p>
+              <p className="mt-1 text-3xl font-semibold">
                 ${metrics.revenueInRange.toFixed(2)}
               </p>
               <form
@@ -66,25 +66,22 @@ export function WelcomePage() {
                   e.preventDefault();
                   loadMetrics();
                 }}
-                className="mt-3 flex items-center gap-2 text-xs text-gray-500"
+                className="mt-3 flex items-center gap-2 text-xs text-term-green/60"
               >
                 <input
                   type="date"
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
-                  className="rounded border border-gray-300 px-2 py-1"
+                  className="terminal-input py-1"
                 />
                 <span>to</span>
                 <input
                   type="date"
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
-                  className="rounded border border-gray-300 px-2 py-1"
+                  className="terminal-input py-1"
                 />
-                <button
-                  type="submit"
-                  className="rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-700"
-                >
+                <button type="submit" className="terminal-button px-3 py-1 text-xs">
                   Apply
                 </button>
               </form>
@@ -92,13 +89,13 @@ export function WelcomePage() {
           </div>
 
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="rounded-lg border border-gray-200 bg-white p-5">
-              <h2 className="text-sm font-medium text-gray-900">Most Popular Items</h2>
+            <div className="terminal-panel p-5">
+              <h2 className="text-sm">Most Popular Items</h2>
               {metrics.topItems.length === 0 ? (
-                <p className="mt-3 text-sm text-gray-500">No sales yet.</p>
+                <p className="mt-3 text-sm text-term-green/60">No sales yet.</p>
               ) : (
                 <table className="mt-3 w-full text-left text-sm">
-                  <thead className="text-gray-500">
+                  <thead className="text-term-amber">
                     <tr>
                       <th className="py-1">Item</th>
                       <th className="py-1 text-right">Sold</th>
@@ -107,10 +104,10 @@ export function WelcomePage() {
                   </thead>
                   <tbody>
                     {metrics.topItems.map((item) => (
-                      <tr key={item.inventoryItemId} className="border-t border-gray-100">
-                        <td className="py-1.5 text-gray-900">{item.name}</td>
-                        <td className="py-1.5 text-right text-gray-600">{item.quantitySold}</td>
-                        <td className="py-1.5 text-right text-gray-600">{item.currentStock}</td>
+                      <tr key={item.inventoryItemId} className="border-t border-term-amber/30">
+                        <td className="py-1.5">{item.name}</td>
+                        <td className="py-1.5 text-right text-term-green/70">{item.quantitySold}</td>
+                        <td className="py-1.5 text-right text-term-green/70">{item.currentStock}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -118,13 +115,13 @@ export function WelcomePage() {
               )}
             </div>
 
-            <div className="rounded-lg border border-gray-200 bg-white p-5">
-              <h2 className="text-sm font-medium text-gray-900">Most Active Customers</h2>
+            <div className="terminal-panel p-5">
+              <h2 className="text-sm">Most Active Customers</h2>
               {metrics.topCustomers.length === 0 ? (
-                <p className="mt-3 text-sm text-gray-500">No customers with orders yet.</p>
+                <p className="mt-3 text-sm text-term-green/60">No customers with orders yet.</p>
               ) : (
                 <table className="mt-3 w-full text-left text-sm">
-                  <thead className="text-gray-500">
+                  <thead className="text-term-amber">
                     <tr>
                       <th className="py-1">Customer</th>
                       <th className="py-1 text-right">Orders</th>
@@ -133,10 +130,10 @@ export function WelcomePage() {
                   </thead>
                   <tbody>
                     {metrics.topCustomers.map((c) => (
-                      <tr key={c.customerId} className="border-t border-gray-100">
-                        <td className="py-1.5 text-gray-900">{c.name}</td>
-                        <td className="py-1.5 text-right text-gray-600">{c.orderCount}</td>
-                        <td className="py-1.5 text-right text-gray-600">${c.totalSpend.toFixed(2)}</td>
+                      <tr key={c.customerId} className="border-t border-term-amber/30">
+                        <td className="py-1.5">{c.name}</td>
+                        <td className="py-1.5 text-right text-term-green/70">{c.orderCount}</td>
+                        <td className="py-1.5 text-right text-term-green/70">${c.totalSpend.toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>

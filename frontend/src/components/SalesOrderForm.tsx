@@ -54,16 +54,16 @@ export function SalesOrderForm({ onSubmit }: SalesOrderFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border border-gray-200 bg-white p-4">
+    <form onSubmit={handleSubmit} className="terminal-panel p-4">
       <select
         required
         value={customerId}
         onChange={(e) => setCustomerId(e.target.value ? Number(e.target.value) : "")}
-        className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+        className="terminal-input w-full"
       >
         <option value="">Select a customer...</option>
         {customers.map((c) => (
-          <option key={c.id} value={c.id}>
+          <option key={c.id} value={c.id} className="bg-term-bg text-term-green">
             {c.name} {c.company ? `(${c.company})` : ""}
           </option>
         ))}
@@ -75,11 +75,11 @@ export function SalesOrderForm({ onSubmit }: SalesOrderFormProps) {
             <select
               value={line.inventoryItemId}
               onChange={(e) => updateLine(index, { inventoryItemId: Number(e.target.value) })}
-              className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm"
+              className="terminal-input flex-1"
             >
               <option value={0}>Select an item...</option>
               {items.map((item) => (
-                <option key={item.id} value={item.id}>
+                <option key={item.id} value={item.id} className="bg-term-bg text-term-green">
                   {item.name} (${item.unitPrice.toFixed(2)})
                 </option>
               ))}
@@ -89,13 +89,13 @@ export function SalesOrderForm({ onSubmit }: SalesOrderFormProps) {
               min={1}
               value={line.quantity}
               onChange={(e) => updateLine(index, { quantity: Number(e.target.value) })}
-              className="w-24 rounded border border-gray-300 px-3 py-2 text-sm"
+              className="terminal-input w-24"
             />
             {lineItems.length > 1 && (
               <button
                 type="button"
                 onClick={() => removeLine(index)}
-                className="text-sm text-red-600 hover:underline"
+                className="text-sm text-term-danger hover:underline"
               >
                 Remove
               </button>
@@ -105,19 +105,15 @@ export function SalesOrderForm({ onSubmit }: SalesOrderFormProps) {
         <button
           type="button"
           onClick={addLine}
-          className="self-start text-sm font-medium text-indigo-600 hover:underline"
+          className="self-start text-sm font-medium uppercase tracking-wide text-term-amber hover:underline"
         >
           + Add item
         </button>
       </div>
 
-      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-3 text-sm text-term-danger">{error}</p>}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="mt-4 rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
-      >
+      <button type="submit" disabled={submitting} className="terminal-button mt-4">
         Create Order
       </button>
     </form>

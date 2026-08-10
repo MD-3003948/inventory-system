@@ -43,8 +43,8 @@ export function InventoryPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="text-2xl font-semibold text-gray-900">Inventory</h1>
-      <p className="mt-1 text-sm text-gray-500">Manage stock items for the demo warehouse.</p>
+      <h1 className="text-2xl font-semibold">Inventory</h1>
+      <p className="mt-1 text-sm text-term-green/60">Manage stock items for the demo warehouse.</p>
 
       <div className="mt-6">
         <ItemForm
@@ -54,9 +54,9 @@ export function InventoryPage() {
         />
       </div>
 
-      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-4 text-sm text-term-danger">{error}</p>}
       {loading ? (
-        <p className="mt-6 text-sm text-gray-500">Loading...</p>
+        <p className="mt-6 text-sm text-term-green/60">Loading...</p>
       ) : (
         <ItemsTable items={items} onEdit={setEditingItem} onDelete={handleDelete} />
       )}

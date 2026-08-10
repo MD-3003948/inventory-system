@@ -1,9 +1,51 @@
 @import "tailwindcss";
 
+@theme {
+  --color-term-bg: #120821;
+  --color-term-panel: #1d0f30;
+  --color-term-green: #8ffe09;
+  --color-term-amber: #ffaa00;
+  --color-term-danger: #ff3860;
+
+  --font-sans: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+  --font-display: "Fraunces", serif;
+
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+}
+
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 body {
-  @apply bg-gray-50;
+  @apply bg-term-bg text-term-green;
+}
+
+h1,
+h2,
+h3 {
+  @apply font-display uppercase tracking-wide text-term-green;
+  text-shadow: 0 0 12px rgba(143, 254, 9, 0.35);
+}
+
+.terminal-panel {
+  @apply border-4 border-double border-term-amber bg-term-panel;
+}
+
+.terminal-input {
+  @apply border-2 border-term-amber bg-term-bg px-3 py-2 text-sm text-term-green placeholder:text-term-green/40 focus:outline-none focus:ring-2 focus:ring-term-amber;
+}
+
+.terminal-button {
+  @apply border-2 border-term-amber bg-term-amber px-4 py-2 text-sm font-bold uppercase tracking-wide text-term-bg hover:border-term-green hover:bg-term-green disabled:opacity-50;
+}
+
+.terminal-button-secondary {
+  @apply border-2 border-term-green/50 bg-transparent px-4 py-2 text-sm font-bold uppercase tracking-wide text-term-green hover:border-term-green;
 }
