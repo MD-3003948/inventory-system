@@ -26,8 +26,10 @@ public class DashboardController(AppDbContext db) : ControllerBase
         var salesOrdersInProgress = await db.SalesOrders
             .CountAsync(o => o.Status == SalesOrderStatus.Pending || o.Status == SalesOrderStatus.Processing);
 
+        // Only Completed orders count as recognized revenue - Pending/Processing/Shipped
+        // haven't actually closed yet, and Cancelled never will.
         var revenueInRange = await db.OrderLineItems
-            .Where(l => l.SalesOrder!.Status != SalesOrderStatus.Cancelled
+            .Where(l => l.SalesOrder!.Status == SalesOrderStatus.Completed
                 && l.SalesOrder.OrderDate >= from && l.SalesOrder.OrderDate <= to)
             .SumAsync(l => (decimal?)(l.Quantity * l.UnitPriceAtSale)) ?? 0m;
 
