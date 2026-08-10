@@ -27,6 +27,9 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
       Cors__AllowedOrigins__0: ${FRONTEND_ORIGIN}
+      Jwt__Key: ${JWT_SIGNING_KEY}
+      InitialAdmin__Username: ${INITIAL_ADMIN_USERNAME}
+      InitialAdmin__Password: ${INITIAL_ADMIN_PASSWORD}
 
   frontend:
     build:

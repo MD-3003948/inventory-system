@@ -15,6 +15,16 @@ import type {
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const TOKEN_STORAGE_KEY = "auth_token";
 
+export class ApiError extends Error {
+  status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 export function getStoredToken(): string | null {
   return localStorage.getItem(TOKEN_STORAGE_KEY);
 }
@@ -42,11 +52,11 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   if (res.status === 401) {
     clearStoredToken();
     window.dispatchEvent(new Event("auth:unauthorized"));
-    throw new Error("Not authenticated");
+    throw new ApiError(401, "Not authenticated");
   }
 
   if (!res.ok) {
-    throw new Error(`Request failed: ${res.status} ${res.statusText}`);
+    throw new ApiError(res.status, `Request failed: ${res.status} ${res.statusText}`);
   }
 
   if (res.status === 204) {

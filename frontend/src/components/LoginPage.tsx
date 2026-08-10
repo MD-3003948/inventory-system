@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { ApiError } from "../api";
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -17,8 +18,12 @@ export function LoginPage() {
     try {
       await login({ username, password });
       navigate("/");
-    } catch {
-      setError("Invalid username or password.");
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        setError("Invalid username or password.");
+      } else {
+        setError("Could not reach the server. Please try again shortly.");
+      }
     } finally {
       setSubmitting(false);
     }
