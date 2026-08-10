@@ -1,7 +1,7 @@
 namespace InventorySystem.Api.Dtos;
 
 public record TopItemMetric(
-    int InventoryItemId,
+    int ProductId,
     string Name,
     string Sku,
     int QuantitySold,

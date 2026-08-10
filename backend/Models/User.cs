@@ -8,7 +8,8 @@ public class User
     public string LastName { get; set; } = string.Empty;
     public string Username { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
-    public string Organization { get; set; } = string.Empty;
+    public int OrganizationId { get; set; }
+    public Organization? Organization { get; set; }
     public int PrivilegeLevel { get; set; }
     public DateTimeOffset? LastLoginAt { get; set; }
     public DateTimeOffset CreatedAt { get; set; }

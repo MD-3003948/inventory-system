@@ -14,8 +14,8 @@ export function NavBar() {
           <NavLink to="/" end className={linkClass}>
             Dashboard
           </NavLink>
-          <NavLink to="/inventory" className={linkClass}>
-            Inventory
+          <NavLink to="/products" className={linkClass}>
+            Products
           </NavLink>
           <NavLink to="/customers" className={linkClass}>
             Customers

@@ -1,20 +1,79 @@
-export interface InventoryItem {
+export interface PartCategory {
   id: number;
   name: string;
+}
+
+export interface PartSubCategory {
+  id: number;
+  name: string;
+  partCategoryId: number;
+}
+
+export interface CustomerCategory {
+  id: number;
+  name: string;
+}
+
+export interface AttributeTemplate {
+  id: number;
+  name: string;
+}
+
+export interface Product {
+  id: number;
   sku: string;
-  category: string;
+  name: string;
+  description: string;
   quantity: number;
   unitPrice: number;
+  partCategoryId: number;
+  partCategoryName: string;
+  partSubCategoryId: number;
+  partSubCategoryName: string;
+  attributeTemplateId: number | null;
+  attributeTemplateName: string | null;
+  customerCategoryId: number;
+  customerCategoryName: string;
+  assignedCustomerId: number | null;
+  assignedCustomerName: string | null;
+  imageUrl: string | null;
+  createdByUserId: number;
+  createdByUserName: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface InventoryItemInput {
-  name: string;
+export interface ProductCreateInput {
   sku: string;
-  category: string;
+  name: string;
+  description: string;
+  partCategoryId: number;
+  partSubCategoryId: number;
+  attributeTemplateId: number | null;
+  customerCategoryId: number;
+  assignedCustomerId: number | null;
+  unitPrice: number;
+  image: File | null;
+}
+
+export interface ProductUpdateInput {
+  sku: string;
+  name: string;
+  description: string;
+  partCategoryId: number;
+  partSubCategoryId: number;
+  attributeTemplateId: number | null;
+  customerCategoryId: number;
+  assignedCustomerId: number | null;
   quantity: number;
   unitPrice: number;
+}
+
+export interface ProductSearchParams {
+  sku?: string;
+  partCategoryId?: number;
+  partSubCategoryId?: number;
+  assignedCustomerId?: number;
 }
 
 export interface LoginRequest {
@@ -67,15 +126,15 @@ export const SALES_ORDER_STATUSES: SalesOrderStatus[] = [
 ];
 
 export interface OrderLineItemInput {
-  inventoryItemId: number;
+  productId: number;
   quantity: number;
 }
 
 export interface OrderLineItem {
   id: number;
-  inventoryItemId: number;
-  inventoryItemName: string;
-  inventoryItemSku: string;
+  productId: number;
+  productName: string;
+  productSku: string;
   quantity: number;
   unitPriceAtSale: number;
   lineTotal: number;
@@ -98,7 +157,7 @@ export interface SalesOrder {
 }
 
 export interface TopItemMetric {
-  inventoryItemId: number;
+  productId: number;
   name: string;
   sku: string;
   quantitySold: number;

@@ -76,6 +76,10 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 
+    // The migration itself always creates this row (and backfills any pre-existing data
+    // onto it), so it's guaranteed to exist by the time we get here.
+    var defaultOrg = db.Organizations.First(o => o.Name == "Platform");
+
     if (!db.Users.Any())
     {
         var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
@@ -88,7 +92,7 @@ using (var scope = app.Services.CreateScope())
             FirstName = "Admin",
             LastName = "User",
             Username = adminUsername,
-            Organization = "Platform",
+            OrganizationId = defaultOrg.Id,
             PrivilegeLevel = 0,
             CreatedAt = DateTimeOffset.UtcNow,
         };
@@ -101,16 +105,52 @@ using (var scope = app.Services.CreateScope())
     if (!db.Customers.Any())
     {
         db.Customers.AddRange(
-            new Customer { Name = "Acme Manufacturing", Email = "purchasing@acme.example", Phone = "555-0101", Company = "Acme Manufacturing", CreatedAt = DateTimeOffset.UtcNow },
-            new Customer { Name = "Bluepeak Logistics", Email = "orders@bluepeak.example", Phone = "555-0102", Company = "Bluepeak Logistics", CreatedAt = DateTimeOffset.UtcNow },
-            new Customer { Name = "Desert Retail Co.", Email = "buying@desertretail.example", Phone = "555-0103", Company = "Desert Retail Co.", CreatedAt = DateTimeOffset.UtcNow }
+            new Customer { Name = "Acme Manufacturing", Email = "purchasing@acme.example", Phone = "555-0101", Company = "Acme Manufacturing", CreatedAt = DateTimeOffset.UtcNow, OrganizationId = defaultOrg.Id },
+            new Customer { Name = "Bluepeak Logistics", Email = "orders@bluepeak.example", Phone = "555-0102", Company = "Bluepeak Logistics", CreatedAt = DateTimeOffset.UtcNow, OrganizationId = defaultOrg.Id },
+            new Customer { Name = "Desert Retail Co.", Email = "buying@desertretail.example", Phone = "555-0103", Company = "Desert Retail Co.", CreatedAt = DateTimeOffset.UtcNow, OrganizationId = defaultOrg.Id }
         );
         db.SaveChanges();
     }
 
-    if (!db.SalesOrders.Any() && db.InventoryItems.Any())
+    if (!db.PartCategories.Any(c => c.Name == "Hardware"))
     {
-        var items = db.InventoryItems.Take(3).ToList();
+        var hardware = new PartCategory { Name = "Hardware", OrganizationId = defaultOrg.Id };
+        var electronics = new PartCategory { Name = "Electronics", OrganizationId = defaultOrg.Id };
+        db.PartCategories.AddRange(hardware, electronics);
+        db.SaveChanges();
+
+        db.PartSubCategories.AddRange(
+            new PartSubCategory { Name = "Fasteners", PartCategoryId = hardware.Id, OrganizationId = defaultOrg.Id },
+            new PartSubCategory { Name = "Brackets", PartCategoryId = hardware.Id, OrganizationId = defaultOrg.Id },
+            new PartSubCategory { Name = "Passive Components", PartCategoryId = electronics.Id, OrganizationId = defaultOrg.Id },
+            new PartSubCategory { Name = "Connectors", PartCategoryId = electronics.Id, OrganizationId = defaultOrg.Id }
+        );
+        db.SaveChanges();
+    }
+
+    if (!db.CustomerCategories.Any(c => c.Name == "OEM"))
+    {
+        db.CustomerCategories.AddRange(
+            new CustomerCategory { Name = "OEM", OrganizationId = defaultOrg.Id },
+            new CustomerCategory { Name = "Distributor", OrganizationId = defaultOrg.Id },
+            new CustomerCategory { Name = "Retail", OrganizationId = defaultOrg.Id }
+        );
+        db.SaveChanges();
+    }
+
+    if (!db.AttributeTemplates.Any(t => t.Name == "Standard Part"))
+    {
+        db.AttributeTemplates.AddRange(
+            new AttributeTemplate { Name = "Standard Part", OrganizationId = defaultOrg.Id },
+            new AttributeTemplate { Name = "Fastener Template", OrganizationId = defaultOrg.Id },
+            new AttributeTemplate { Name = "Electronic Component", OrganizationId = defaultOrg.Id }
+        );
+        db.SaveChanges();
+    }
+
+    if (!db.SalesOrders.Any() && db.Products.Any())
+    {
+        var products = db.Products.Take(3).ToList();
         var customers = db.Customers.Take(3).ToList();
         var rng = new Random();
 
@@ -124,13 +164,13 @@ using (var scope = app.Services.CreateScope())
                 OrderNumber = "PENDING",
             };
 
-            foreach (var item in items.Take(rng.Next(1, items.Count + 1)))
+            foreach (var product in products.Take(rng.Next(1, products.Count + 1)))
             {
                 order.LineItems.Add(new OrderLineItem
                 {
-                    InventoryItemId = item.Id,
+                    ProductId = product.Id,
                     Quantity = rng.Next(1, 5),
-                    UnitPriceAtSale = item.UnitPrice,
+                    UnitPriceAtSale = product.UnitPrice,
                 });
             }
 
@@ -154,6 +194,16 @@ app.UseCors(FrontendCorsPolicy);
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Serve uploaded product images/drawings under /api/uploads so the existing Caddy
+// "/api/* -> backend" production routing rule covers it with zero Caddyfile changes.
+var uploadsRoot = Path.Combine(app.Environment.ContentRootPath, "uploads");
+Directory.CreateDirectory(uploadsRoot);
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsRoot),
+    RequestPath = "/api/uploads",
+});
 
 app.MapControllers();
 

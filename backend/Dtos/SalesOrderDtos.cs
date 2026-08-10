@@ -6,7 +6,7 @@ namespace InventorySystem.Api.Dtos;
 public class OrderLineItemRequest
 {
     [Required]
-    public int InventoryItemId { get; set; }
+    public int ProductId { get; set; }
 
     [Range(1, int.MaxValue)]
     public int Quantity { get; set; }
@@ -14,9 +14,9 @@ public class OrderLineItemRequest
 
 public record OrderLineItemResponse(
     int Id,
-    int InventoryItemId,
-    string InventoryItemName,
-    string InventoryItemSku,
+    int ProductId,
+    string ProductName,
+    string ProductSku,
     int Quantity,
     decimal UnitPriceAtSale,
     decimal LineTotal

@@ -3,6 +3,9 @@
 **/obj/
 *.user
 
+# Uploaded files (local disk storage, persisted via a Docker volume in prod)
+backend/uploads/
+
 # Env files
 .env
 .env.*

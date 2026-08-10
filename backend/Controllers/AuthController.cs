@@ -50,7 +50,7 @@ public class AuthController(AppDbContext db, IConfiguration config) : Controller
             return Unauthorized();
         }
 
-        var user = await db.Users.FindAsync(userId);
+        var user = await db.Users.Include(u => u.Organization).FirstOrDefaultAsync(u => u.Id == userId);
         if (user is null)
         {
             return Unauthorized();
@@ -58,7 +58,7 @@ public class AuthController(AppDbContext db, IConfiguration config) : Controller
 
         return Ok(new CurrentUserResponse(
             user.UserCode, user.FirstName, user.LastName, user.Username,
-            user.Organization, user.PrivilegeLevel, user.LastLoginAt));
+            user.Organization?.Name ?? string.Empty, user.PrivilegeLevel, user.LastLoginAt));
     }
 
     private string GenerateToken(User user)
@@ -68,6 +68,7 @@ public class AuthController(AppDbContext db, IConfiguration config) : Controller
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Username),
             new Claim("privilege_level", user.PrivilegeLevel.ToString()),
+            new Claim("organization_id", user.OrganizationId.ToString()),
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]!));

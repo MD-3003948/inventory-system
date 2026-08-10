@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { customersApi, itemsApi } from "../api";
-import type { Customer, InventoryItem, OrderLineItemInput, SalesOrderInput } from "../types";
+import { customersApi, productsApi } from "../api";
+import type { Customer, Product, OrderLineItemInput, SalesOrderInput } from "../types";
 
 interface SalesOrderFormProps {
   onSubmit: (order: SalesOrderInput) => Promise<void>;
@@ -8,35 +8,35 @@ interface SalesOrderFormProps {
 
 export function SalesOrderForm({ onSubmit }: SalesOrderFormProps) {
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [items, setItems] = useState<InventoryItem[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [customerId, setCustomerId] = useState<number | "">("");
-  const [lineItems, setLineItems] = useState<OrderLineItemInput[]>([{ inventoryItemId: 0, quantity: 1 }]);
+  const [lineItems, setLineItems] = useState<OrderLineItemInput[]>([{ productId: 0, quantity: 1 }]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     customersApi.list().then(setCustomers).catch(() => {});
-    itemsApi.list().then(setItems).catch(() => {});
+    productsApi.list().then(setProducts).catch(() => {});
   }, []);
 
   const updateLine = (index: number, patch: Partial<OrderLineItemInput>) => {
     setLineItems((prev) => prev.map((line, i) => (i === index ? { ...line, ...patch } : line)));
   };
 
-  const addLine = () => setLineItems((prev) => [...prev, { inventoryItemId: 0, quantity: 1 }]);
+  const addLine = () => setLineItems((prev) => [...prev, { productId: 0, quantity: 1 }]);
   const removeLine = (index: number) =>
     setLineItems((prev) => prev.filter((_, i) => i !== index));
 
   const resetForm = () => {
     setCustomerId("");
-    setLineItems([{ inventoryItemId: 0, quantity: 1 }]);
+    setLineItems([{ productId: 0, quantity: 1 }]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    const validLines = lineItems.filter((l) => l.inventoryItemId > 0 && l.quantity > 0);
+    const validLines = lineItems.filter((l) => l.productId > 0 && l.quantity > 0);
     if (!customerId || validLines.length === 0) {
       setError("Pick a customer and at least one item with a quantity.");
       return;
@@ -73,14 +73,14 @@ export function SalesOrderForm({ onSubmit }: SalesOrderFormProps) {
         {lineItems.map((line, index) => (
           <div key={index} className="flex gap-2">
             <select
-              value={line.inventoryItemId}
-              onChange={(e) => updateLine(index, { inventoryItemId: Number(e.target.value) })}
+              value={line.productId}
+              onChange={(e) => updateLine(index, { productId: Number(e.target.value) })}
               className="terminal-input flex-1"
             >
               <option value={0}>Select an item...</option>
-              {items.map((item) => (
-                <option key={item.id} value={item.id} className="bg-term-bg text-term-green">
-                  {item.name} (${item.unitPrice.toFixed(2)})
+              {products.map((product) => (
+                <option key={product.id} value={product.id} className="bg-term-bg text-term-green">
+                  {product.name} (${product.unitPrice.toFixed(2)})
                 </option>
               ))}
             </select>

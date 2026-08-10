@@ -5,7 +5,7 @@ namespace InventorySystem.Api.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    public DbSet<InventoryItem> InventoryItems => Set<InventoryItem>();
+    public DbSet<Product> Products => Set<Product>();
 
     public DbSet<Supplier> Suppliers => Set<Supplier>();
 
@@ -17,15 +17,61 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<OrderLineItem> OrderLineItems => Set<OrderLineItem>();
 
+    public DbSet<Organization> Organizations => Set<Organization>();
+
+    public DbSet<PartCategory> PartCategories => Set<PartCategory>();
+
+    public DbSet<PartSubCategory> PartSubCategories => Set<PartSubCategory>();
+
+    public DbSet<CustomerCategory> CustomerCategories => Set<CustomerCategory>();
+
+    public DbSet<AttributeTemplate> AttributeTemplates => Set<AttributeTemplate>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<InventoryItem>(entity =>
+        modelBuilder.Entity<Product>(entity =>
         {
-            entity.Property(i => i.Name).IsRequired().HasMaxLength(200);
-            entity.Property(i => i.Sku).IsRequired().HasMaxLength(64);
-            entity.Property(i => i.Category).HasMaxLength(100);
-            entity.Property(i => i.UnitPrice).HasColumnType("numeric(10,2)");
-            entity.HasIndex(i => i.Sku).IsUnique();
+            entity.Property(p => p.Name).IsRequired().HasMaxLength(200);
+            entity.Property(p => p.Sku).IsRequired().HasMaxLength(64);
+            entity.Property(p => p.Description).HasMaxLength(2000);
+            entity.Property(p => p.UnitPrice).HasColumnType("numeric(10,2)");
+            entity.Property(p => p.ImagePath).HasMaxLength(500);
+            entity.HasIndex(p => p.Sku).IsUnique();
+
+            entity.HasOne(p => p.PartCategory)
+                .WithMany()
+                .HasForeignKey(p => p.PartCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(p => p.PartSubCategory)
+                .WithMany()
+                .HasForeignKey(p => p.PartSubCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(p => p.AttributeTemplate)
+                .WithMany()
+                .HasForeignKey(p => p.AttributeTemplateId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(p => p.CustomerCategory)
+                .WithMany()
+                .HasForeignKey(p => p.CustomerCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(p => p.AssignedCustomer)
+                .WithMany()
+                .HasForeignKey(p => p.AssignedCustomerId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(p => p.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(p => p.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(p => p.Organization)
+                .WithMany()
+                .HasForeignKey(p => p.OrganizationId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -35,9 +81,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(u => u.LastName).IsRequired().HasMaxLength(100);
             entity.Property(u => u.Username).IsRequired().HasMaxLength(100);
             entity.Property(u => u.PasswordHash).IsRequired();
-            entity.Property(u => u.Organization).HasMaxLength(200);
             entity.HasIndex(u => u.UserCode).IsUnique();
             entity.HasIndex(u => u.Username).IsUnique();
+
+            entity.HasOne(u => u.Organization)
+                .WithMany()
+                .HasForeignKey(u => u.OrganizationId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Customer>(entity =>
@@ -46,6 +96,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(c => c.Email).HasMaxLength(200);
             entity.Property(c => c.Phone).HasMaxLength(32);
             entity.Property(c => c.Company).HasMaxLength(200);
+
+            entity.HasOne(c => c.Organization)
+                .WithMany()
+                .HasForeignKey(c => c.OrganizationId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Supplier>(entity =>
+        {
+            entity.HasOne(s => s.Organization)
+                .WithMany()
+                .HasForeignKey(s => s.OrganizationId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<SalesOrder>(entity =>
@@ -64,9 +127,54 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.HasOne(l => l.SalesOrder)
                 .WithMany(o => o.LineItems)
                 .HasForeignKey(l => l.SalesOrderId);
-            entity.HasOne(l => l.InventoryItem)
+            entity.HasOne(l => l.Product)
                 .WithMany()
-                .HasForeignKey(l => l.InventoryItemId);
+                .HasForeignKey(l => l.ProductId);
+        });
+
+        modelBuilder.Entity<Organization>(entity =>
+        {
+            entity.Property(o => o.Name).IsRequired().HasMaxLength(200);
+        });
+
+        modelBuilder.Entity<PartCategory>(entity =>
+        {
+            entity.Property(c => c.Name).IsRequired().HasMaxLength(100);
+            entity.HasOne(c => c.Organization)
+                .WithMany()
+                .HasForeignKey(c => c.OrganizationId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<PartSubCategory>(entity =>
+        {
+            entity.Property(c => c.Name).IsRequired().HasMaxLength(100);
+            entity.HasOne(c => c.PartCategory)
+                .WithMany(c => c.SubCategories)
+                .HasForeignKey(c => c.PartCategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(c => c.Organization)
+                .WithMany()
+                .HasForeignKey(c => c.OrganizationId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<CustomerCategory>(entity =>
+        {
+            entity.Property(c => c.Name).IsRequired().HasMaxLength(100);
+            entity.HasOne(c => c.Organization)
+                .WithMany()
+                .HasForeignKey(c => c.OrganizationId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<AttributeTemplate>(entity =>
+        {
+            entity.Property(t => t.Name).IsRequired().HasMaxLength(100);
+            entity.HasOne(t => t.Organization)
+                .WithMany()
+                .HasForeignKey(t => t.OrganizationId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

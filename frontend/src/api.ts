@@ -1,6 +1,4 @@
 import type {
-  InventoryItem,
-  InventoryItemInput,
   LoginRequest,
   LoginResponse,
   CurrentUser,
@@ -10,6 +8,14 @@ import type {
   SalesOrderInput,
   SalesOrderStatus,
   DashboardMetrics,
+  Product,
+  ProductCreateInput,
+  ProductUpdateInput,
+  ProductSearchParams,
+  PartCategory,
+  PartSubCategory,
+  CustomerCategory,
+  AttributeTemplate,
 } from "./types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -39,7 +45,11 @@ export function clearStoredToken() {
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const token = getStoredToken();
-  const headers: HeadersInit = { "Content-Type": "application/json" };
+  const headers: HeadersInit = {};
+  // Let the browser set Content-Type (with the multipart boundary) itself for FormData bodies.
+  if (!(options?.body instanceof FormData)) {
+    headers["Content-Type"] = "application/json";
+  }
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -66,6 +76,27 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+function buildProductFormData(product: ProductCreateInput): FormData {
+  const formData = new FormData();
+  formData.set("Sku", product.sku);
+  formData.set("Name", product.name);
+  formData.set("Description", product.description);
+  formData.set("PartCategoryId", String(product.partCategoryId));
+  formData.set("PartSubCategoryId", String(product.partSubCategoryId));
+  if (product.attributeTemplateId !== null) {
+    formData.set("AttributeTemplateId", String(product.attributeTemplateId));
+  }
+  formData.set("CustomerCategoryId", String(product.customerCategoryId));
+  if (product.assignedCustomerId !== null) {
+    formData.set("AssignedCustomerId", String(product.assignedCustomerId));
+  }
+  formData.set("UnitPrice", String(product.unitPrice));
+  if (product.image) {
+    formData.set("Image", product.image);
+  }
+  return formData;
+}
+
 export const authApi = {
   login: (credentials: LoginRequest) =>
     request<LoginResponse>("/auth/login", {
@@ -75,20 +106,39 @@ export const authApi = {
   me: () => request<CurrentUser>("/auth/me"),
 };
 
-export const itemsApi = {
-  list: () => request<InventoryItem[]>("/items"),
-  create: (item: InventoryItemInput) =>
-    request<InventoryItem>("/items", {
+export const productsApi = {
+  list: (params?: ProductSearchParams) => {
+    const query = new URLSearchParams();
+    if (params?.sku) query.set("sku", params.sku);
+    if (params?.partCategoryId) query.set("partCategoryId", String(params.partCategoryId));
+    if (params?.partSubCategoryId) query.set("partSubCategoryId", String(params.partSubCategoryId));
+    if (params?.assignedCustomerId) query.set("assignedCustomerId", String(params.assignedCustomerId));
+    const qs = query.toString();
+    return request<Product[]>(`/products${qs ? `?${qs}` : ""}`);
+  },
+  get: (id: number) => request<Product>(`/products/${id}`),
+  create: (product: ProductCreateInput) =>
+    request<Product>("/products", {
       method: "POST",
-      body: JSON.stringify(item),
+      body: buildProductFormData(product),
     }),
-  update: (id: number, item: InventoryItemInput) =>
-    request<InventoryItem>(`/items/${id}`, {
+  update: (id: number, product: ProductUpdateInput) =>
+    request<Product>(`/products/${id}`, {
       method: "PUT",
-      body: JSON.stringify(item),
+      body: JSON.stringify(product),
     }),
   remove: (id: number) =>
-    request<void>(`/items/${id}`, { method: "DELETE" }),
+    request<void>(`/products/${id}`, { method: "DELETE" }),
+};
+
+export const lookupsApi = {
+  partCategories: () => request<PartCategory[]>("/lookups/part-categories"),
+  partSubCategories: (categoryId?: number) =>
+    request<PartSubCategory[]>(
+      `/lookups/part-sub-categories${categoryId ? `?categoryId=${categoryId}` : ""}`
+    ),
+  customerCategories: () => request<CustomerCategory[]>("/lookups/customer-categories"),
+  attributeTemplates: () => request<AttributeTemplate[]>("/lookups/attribute-templates"),
 };
 
 export const customersApi = {

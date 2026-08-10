@@ -9,5 +9,8 @@ public class Customer
     public string Company { get; set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; set; }
 
+    public int OrganizationId { get; set; }
+    public Organization? Organization { get; set; }
+
     public List<SalesOrder> Orders { get; set; } = [];
 }

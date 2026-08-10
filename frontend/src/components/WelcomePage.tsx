@@ -150,7 +150,7 @@ export function WelcomePage() {
                   </thead>
                   <tbody>
                     {metrics.topItems.map((item) => (
-                      <tr key={item.inventoryItemId} className="border-t border-term-amber/30">
+                      <tr key={item.productId} className="border-t border-term-amber/30">
                         <td className="py-1.5">{item.name}</td>
                         <td className="py-1.5 text-right text-term-green/70">{item.quantitySold}</td>
                         <td className="py-1.5 text-right text-term-green/70">{item.currentStock}</td>

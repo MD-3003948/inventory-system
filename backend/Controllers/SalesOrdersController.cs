@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using InventorySystem.Api.Data;
 using InventorySystem.Api.Dtos;
+using InventorySystem.Api.Extensions;
 using InventorySystem.Api.Models;
 
 namespace InventorySystem.Api.Controllers;
@@ -15,7 +16,9 @@ public class SalesOrdersController(AppDbContext db) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<SalesOrderResponse>>> GetAll()
     {
+        var orgId = User.GetOrganizationId();
         var orders = await WithIncludes()
+            .Where(o => o.Customer!.OrganizationId == orgId)
             .OrderByDescending(o => o.OrderDate)
             .ToListAsync();
 
@@ -25,7 +28,8 @@ public class SalesOrdersController(AppDbContext db) : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<SalesOrderResponse>> GetById(int id)
     {
-        var order = await WithIncludes().FirstOrDefaultAsync(o => o.Id == id);
+        var orgId = User.GetOrganizationId();
+        var order = await WithIncludes().FirstOrDefaultAsync(o => o.Id == id && o.Customer!.OrganizationId == orgId);
         if (order is null) return NotFound();
 
         return Ok(ToResponse(order));
@@ -34,7 +38,9 @@ public class SalesOrdersController(AppDbContext db) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<SalesOrderResponse>> Create(SalesOrderRequest request)
     {
-        var customer = await db.Customers.FindAsync(request.CustomerId);
+        var orgId = User.GetOrganizationId();
+
+        var customer = await db.Customers.FirstOrDefaultAsync(c => c.Id == request.CustomerId && c.OrganizationId == orgId);
         if (customer is null) return BadRequest("Customer not found.");
 
         var order = new SalesOrder
@@ -47,14 +53,14 @@ public class SalesOrdersController(AppDbContext db) : ControllerBase
 
         foreach (var line in request.LineItems)
         {
-            var item = await db.InventoryItems.FindAsync(line.InventoryItemId);
-            if (item is null) return BadRequest($"Inventory item {line.InventoryItemId} not found.");
+            var product = await db.Products.FirstOrDefaultAsync(p => p.Id == line.ProductId && p.OrganizationId == orgId);
+            if (product is null) return BadRequest($"Product {line.ProductId} not found.");
 
             order.LineItems.Add(new OrderLineItem
             {
-                InventoryItemId = item.Id,
+                ProductId = product.Id,
                 Quantity = line.Quantity,
-                UnitPriceAtSale = item.UnitPrice,
+                UnitPriceAtSale = product.UnitPrice,
             });
         }
 
@@ -71,7 +77,8 @@ public class SalesOrdersController(AppDbContext db) : ControllerBase
     [HttpPut("{id:int}/status")]
     public async Task<ActionResult<SalesOrderResponse>> UpdateStatus(int id, SalesOrderStatusUpdateRequest request)
     {
-        var order = await WithIncludes().FirstOrDefaultAsync(o => o.Id == id);
+        var orgId = User.GetOrganizationId();
+        var order = await WithIncludes().FirstOrDefaultAsync(o => o.Id == id && o.Customer!.OrganizationId == orgId);
         if (order is null) return NotFound();
 
         order.Status = request.Status;
@@ -83,7 +90,9 @@ public class SalesOrdersController(AppDbContext db) : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var order = await db.SalesOrders.FindAsync(id);
+        var orgId = User.GetOrganizationId();
+        var order = await db.SalesOrders.Include(o => o.Customer)
+            .FirstOrDefaultAsync(o => o.Id == id && o.Customer!.OrganizationId == orgId);
         if (order is null) return NotFound();
 
         db.SalesOrders.Remove(order);
@@ -96,7 +105,7 @@ public class SalesOrdersController(AppDbContext db) : ControllerBase
         db.SalesOrders
             .Include(o => o.Customer)
             .Include(o => o.LineItems)
-            .ThenInclude(l => l.InventoryItem);
+            .ThenInclude(l => l.Product);
 
     private static SalesOrderResponse ToResponse(SalesOrder o) => new(
         o.Id,
@@ -108,9 +117,9 @@ public class SalesOrdersController(AppDbContext db) : ControllerBase
         o.LineItems.Sum(l => l.Quantity * l.UnitPriceAtSale),
         o.LineItems.Select(l => new OrderLineItemResponse(
             l.Id,
-            l.InventoryItemId,
-            l.InventoryItem?.Name ?? string.Empty,
-            l.InventoryItem?.Sku ?? string.Empty,
+            l.ProductId,
+            l.Product?.Name ?? string.Empty,
+            l.Product?.Sku ?? string.Empty,
             l.Quantity,
             l.UnitPriceAtSale,
             l.Quantity * l.UnitPriceAtSale
