@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { productsApi, lookupsApi, customersApi } from "../api";
 import type { Product, PartCategory, PartSubCategory, Customer } from "../types";
+import { FormField } from "./FormField";
 
 export function ProductsPage() {
   const navigate = useNavigate();
@@ -75,48 +76,56 @@ export function ProductsPage() {
         }}
         className="terminal-panel mt-6 grid grid-cols-2 gap-3 p-4 sm:grid-cols-4"
       >
-        <input
-          placeholder="Search by SKU..."
-          value={sku}
-          onChange={(e) => setSku(e.target.value)}
-          className="terminal-input col-span-2 sm:col-span-1"
-        />
-        <select
-          value={partCategoryId}
-          onChange={(e) => setPartCategoryId(e.target.value ? Number(e.target.value) : "")}
-          className="terminal-input"
-        >
-          <option value="">All Part Categories</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id} className="bg-term-bg text-term-green">
-              {c.name}
-            </option>
-          ))}
-        </select>
-        <select
-          value={partSubCategoryId}
-          onChange={(e) => setPartSubCategoryId(e.target.value ? Number(e.target.value) : "")}
-          className="terminal-input"
-        >
-          <option value="">All Sub-Categories</option>
-          {subCategories.map((c) => (
-            <option key={c.id} value={c.id} className="bg-term-bg text-term-green">
-              {c.name}
-            </option>
-          ))}
-        </select>
-        <select
-          value={assignedCustomerId}
-          onChange={(e) => setAssignedCustomerId(e.target.value ? Number(e.target.value) : "")}
-          className="terminal-input"
-        >
-          <option value="">All Assigned Customers</option>
-          {customers.map((c) => (
-            <option key={c.id} value={c.id} className="bg-term-bg text-term-green">
-              {c.name}
-            </option>
-          ))}
-        </select>
+        <FormField label="Search by SKU" className="col-span-2 sm:col-span-1">
+          <input
+            placeholder="Search by SKU..."
+            value={sku}
+            onChange={(e) => setSku(e.target.value)}
+            className="terminal-input"
+          />
+        </FormField>
+        <FormField label="Part Category">
+          <select
+            value={partCategoryId}
+            onChange={(e) => setPartCategoryId(e.target.value ? Number(e.target.value) : "")}
+            className="terminal-input"
+          >
+            <option value="">All Part Categories</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id} className="bg-term-bg text-term-green">
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </FormField>
+        <FormField label="Sub-Category">
+          <select
+            value={partSubCategoryId}
+            onChange={(e) => setPartSubCategoryId(e.target.value ? Number(e.target.value) : "")}
+            className="terminal-input"
+          >
+            <option value="">All Sub-Categories</option>
+            {subCategories.map((c) => (
+              <option key={c.id} value={c.id} className="bg-term-bg text-term-green">
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </FormField>
+        <FormField label="Assigned Customer">
+          <select
+            value={assignedCustomerId}
+            onChange={(e) => setAssignedCustomerId(e.target.value ? Number(e.target.value) : "")}
+            className="terminal-input"
+          >
+            <option value="">All Assigned Customers</option>
+            {customers.map((c) => (
+              <option key={c.id} value={c.id} className="bg-term-bg text-term-green">
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </FormField>
         <div className="col-span-2 sm:col-span-4">
           <button type="submit" className="terminal-button">
             Search

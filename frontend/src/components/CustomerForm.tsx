@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Customer, CustomerInput } from "../types";
+import { FormField } from "./FormField";
 
 const emptyForm: CustomerInput = { name: "", email: "", phone: "", company: "" };
 
@@ -30,31 +31,39 @@ export function CustomerForm({ editingCustomer, onSubmit, onCancelEdit }: Custom
 
   return (
     <form onSubmit={handleSubmit} className="terminal-panel grid grid-cols-2 gap-3 p-4 sm:grid-cols-4">
-      <input
-        required
-        placeholder="Name"
-        value={form.name}
-        onChange={(e) => setForm({ ...form, name: e.target.value })}
-        className="terminal-input"
-      />
-      <input
-        placeholder="Email"
-        value={form.email}
-        onChange={(e) => setForm({ ...form, email: e.target.value })}
-        className="terminal-input"
-      />
-      <input
-        placeholder="Phone"
-        value={form.phone}
-        onChange={(e) => setForm({ ...form, phone: e.target.value })}
-        className="terminal-input"
-      />
-      <input
-        placeholder="Company"
-        value={form.company}
-        onChange={(e) => setForm({ ...form, company: e.target.value })}
-        className="terminal-input"
-      />
+      <FormField label="Name">
+        <input
+          required
+          placeholder="Name"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          className="terminal-input"
+        />
+      </FormField>
+      <FormField label="Email">
+        <input
+          placeholder="Email"
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          className="terminal-input"
+        />
+      </FormField>
+      <FormField label="Phone">
+        <input
+          placeholder="Phone"
+          value={form.phone}
+          onChange={(e) => setForm({ ...form, phone: e.target.value })}
+          className="terminal-input"
+        />
+      </FormField>
+      <FormField label="Company">
+        <input
+          placeholder="Company"
+          value={form.company}
+          onChange={(e) => setForm({ ...form, company: e.target.value })}
+          className="terminal-input"
+        />
+      </FormField>
       <div className="col-span-2 flex gap-2 sm:col-span-4">
         <button type="submit" disabled={submitting} className="terminal-button">
           {editingCustomer ? "Save Changes" : "Add Customer"}

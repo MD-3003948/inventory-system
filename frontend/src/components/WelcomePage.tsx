@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { dashboardApi, customersApi } from "../api";
 import type { Customer, DashboardMetrics, RevenueSeries } from "../types";
 import { RevenueChart } from "./RevenueChart";
+import { FormField } from "./FormField";
 
 function toDateInputValue(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -109,45 +110,52 @@ export function WelcomePage() {
           <div className="terminal-panel flex flex-col p-5">
             <p className="text-sm uppercase tracking-wide text-term-amber">Revenue</p>
 
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-term-green/60">
-              <select
-                value={timeframe}
-                onChange={(e) => setTimeframe(e.target.value as Timeframe)}
-                className="terminal-input py-1"
-              >
-                {(Object.keys(TIMEFRAME_LABELS) as Timeframe[]).map((tf) => (
-                  <option key={tf} value={tf}>
-                    {TIMEFRAME_LABELS[tf]}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={customerId}
-                onChange={(e) => setCustomerId(e.target.value === "" ? "" : Number(e.target.value))}
-                className="terminal-input py-1"
-              >
-                <option value="">All Customers</option>
-                {customers.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+            <div className="mt-3 flex flex-wrap items-end gap-2 text-xs text-term-green/60">
+              <FormField label="Timeframe">
+                <select
+                  value={timeframe}
+                  onChange={(e) => setTimeframe(e.target.value as Timeframe)}
+                  className="terminal-input py-1"
+                >
+                  {(Object.keys(TIMEFRAME_LABELS) as Timeframe[]).map((tf) => (
+                    <option key={tf} value={tf}>
+                      {TIMEFRAME_LABELS[tf]}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
+              <FormField label="Customer">
+                <select
+                  value={customerId}
+                  onChange={(e) => setCustomerId(e.target.value === "" ? "" : Number(e.target.value))}
+                  className="terminal-input py-1"
+                >
+                  <option value="">All Customers</option>
+                  {customers.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
               {timeframe === "custom" && (
                 <>
-                  <input
-                    type="date"
-                    value={customFrom}
-                    onChange={(e) => setCustomFrom(e.target.value)}
-                    className="terminal-input py-1"
-                  />
-                  <span>to</span>
-                  <input
-                    type="date"
-                    value={customTo}
-                    onChange={(e) => setCustomTo(e.target.value)}
-                    className="terminal-input py-1"
-                  />
+                  <FormField label="From">
+                    <input
+                      type="date"
+                      value={customFrom}
+                      onChange={(e) => setCustomFrom(e.target.value)}
+                      className="terminal-input py-1"
+                    />
+                  </FormField>
+                  <FormField label="To">
+                    <input
+                      type="date"
+                      value={customTo}
+                      onChange={(e) => setCustomTo(e.target.value)}
+                      className="terminal-input py-1"
+                    />
+                  </FormField>
                 </>
               )}
             </div>

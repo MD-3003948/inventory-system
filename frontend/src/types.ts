@@ -3,8 +3,17 @@ export interface PartCategory {
   name: string;
 }
 
+export interface PartCategoryInput {
+  name: string;
+}
+
 export interface PartSubCategory {
   id: number;
+  name: string;
+  partCategoryId: number;
+}
+
+export interface PartSubCategoryInput {
   name: string;
   partCategoryId: number;
 }
@@ -16,6 +25,10 @@ export interface CustomerCategory {
 
 export interface AttributeTemplate {
   id: number;
+  name: string;
+}
+
+export interface AttributeTemplateInput {
   name: string;
 }
 

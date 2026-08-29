@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { customersApi, productsApi } from "../api";
 import type { Customer, Product, OrderLineItemInput, SalesOrderInput } from "../types";
+import { FormField } from "./FormField";
 
 interface SalesOrderFormProps {
   onSubmit: (order: SalesOrderInput) => Promise<void>;
@@ -55,47 +56,53 @@ export function SalesOrderForm({ onSubmit }: SalesOrderFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="terminal-panel p-4">
-      <select
-        required
-        value={customerId}
-        onChange={(e) => setCustomerId(e.target.value ? Number(e.target.value) : "")}
-        className="terminal-input w-full"
-      >
-        <option value="">Select a customer...</option>
-        {customers.map((c) => (
-          <option key={c.id} value={c.id} className="bg-term-bg text-term-green">
-            {c.name} {c.company ? `(${c.company})` : ""}
-          </option>
-        ))}
-      </select>
+      <FormField label="Customer">
+        <select
+          required
+          value={customerId}
+          onChange={(e) => setCustomerId(e.target.value ? Number(e.target.value) : "")}
+          className="terminal-input w-full"
+        >
+          <option value="">Select a customer...</option>
+          {customers.map((c) => (
+            <option key={c.id} value={c.id} className="bg-term-bg text-term-green">
+              {c.name} {c.company ? `(${c.company})` : ""}
+            </option>
+          ))}
+        </select>
+      </FormField>
 
       <div className="mt-3 flex flex-col gap-2">
         {lineItems.map((line, index) => (
-          <div key={index} className="flex gap-2">
-            <select
-              value={line.productId}
-              onChange={(e) => updateLine(index, { productId: Number(e.target.value) })}
-              className="terminal-input flex-1"
-            >
-              <option value={0}>Select an item...</option>
-              {products.map((product) => (
-                <option key={product.id} value={product.id} className="bg-term-bg text-term-green">
-                  {product.name} (${product.unitPrice.toFixed(2)})
-                </option>
-              ))}
-            </select>
-            <input
-              type="number"
-              min={1}
-              value={line.quantity}
-              onChange={(e) => updateLine(index, { quantity: Number(e.target.value) })}
-              className="terminal-input w-24"
-            />
+          <div key={index} className="flex items-end gap-2">
+            <FormField label="Item" className="flex-1">
+              <select
+                value={line.productId}
+                onChange={(e) => updateLine(index, { productId: Number(e.target.value) })}
+                className="terminal-input"
+              >
+                <option value={0}>Select an item...</option>
+                {products.map((product) => (
+                  <option key={product.id} value={product.id} className="bg-term-bg text-term-green">
+                    {product.name} (${product.unitPrice.toFixed(2)})
+                  </option>
+                ))}
+              </select>
+            </FormField>
+            <FormField label="Quantity">
+              <input
+                type="number"
+                min={1}
+                value={line.quantity}
+                onChange={(e) => updateLine(index, { quantity: Number(e.target.value) })}
+                className="terminal-input w-24"
+              />
+            </FormField>
             {lineItems.length > 1 && (
               <button
                 type="button"
                 onClick={() => removeLine(index)}
-                className="text-sm text-term-danger hover:underline"
+                className="pb-1.5 text-sm text-term-danger hover:underline"
               >
                 Remove
               </button>

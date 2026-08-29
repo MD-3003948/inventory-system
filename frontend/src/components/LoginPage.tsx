@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ApiError } from "../api";
+import { FormField } from "./FormField";
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -39,21 +40,25 @@ export function LoginPage() {
         <p className="mt-1 text-sm text-term-green/60">// sign in to continue</p>
 
         <div className="mt-6 flex flex-col gap-3">
-          <input
-            required
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="terminal-input"
-          />
-          <input
-            required
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="terminal-input"
-          />
+          <FormField label="Username">
+            <input
+              required
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="terminal-input"
+            />
+          </FormField>
+          <FormField label="Password">
+            <input
+              required
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="terminal-input"
+            />
+          </FormField>
         </div>
 
         {error && <p className="mt-3 text-sm text-term-danger">{error}</p>}

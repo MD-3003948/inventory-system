@@ -15,9 +15,12 @@ import type {
   ProductUpdateInput,
   ProductSearchParams,
   PartCategory,
+  PartCategoryInput,
   PartSubCategory,
+  PartSubCategoryInput,
   CustomerCategory,
   AttributeTemplate,
+  AttributeTemplateInput,
 } from "./types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -68,7 +71,17 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   }
 
   if (!res.ok) {
-    throw new ApiError(res.status, `Request failed: ${res.status} ${res.statusText}`);
+    let message = `Request failed: ${res.status} ${res.statusText}`;
+    const text = await res.text().catch(() => "");
+    if (text) {
+      try {
+        const parsed = JSON.parse(text);
+        if (typeof parsed === "string") message = parsed;
+      } catch {
+        message = text;
+      }
+    }
+    throw new ApiError(res.status, message);
   }
 
   if (res.status === 204) {
@@ -135,12 +148,33 @@ export const productsApi = {
 
 export const lookupsApi = {
   partCategories: () => request<PartCategory[]>("/lookups/part-categories"),
+  createPartCategory: (input: PartCategoryInput) =>
+    request<PartCategory>("/lookups/part-categories", { method: "POST", body: JSON.stringify(input) }),
+  updatePartCategory: (id: number, input: PartCategoryInput) =>
+    request<PartCategory>(`/lookups/part-categories/${id}`, { method: "PUT", body: JSON.stringify(input) }),
+  removePartCategory: (id: number) =>
+    request<void>(`/lookups/part-categories/${id}`, { method: "DELETE" }),
+
   partSubCategories: (categoryId?: number) =>
     request<PartSubCategory[]>(
       `/lookups/part-sub-categories${categoryId ? `?categoryId=${categoryId}` : ""}`
     ),
+  createPartSubCategory: (input: PartSubCategoryInput) =>
+    request<PartSubCategory>("/lookups/part-sub-categories", { method: "POST", body: JSON.stringify(input) }),
+  updatePartSubCategory: (id: number, input: PartSubCategoryInput) =>
+    request<PartSubCategory>(`/lookups/part-sub-categories/${id}`, { method: "PUT", body: JSON.stringify(input) }),
+  removePartSubCategory: (id: number) =>
+    request<void>(`/lookups/part-sub-categories/${id}`, { method: "DELETE" }),
+
   customerCategories: () => request<CustomerCategory[]>("/lookups/customer-categories"),
+
   attributeTemplates: () => request<AttributeTemplate[]>("/lookups/attribute-templates"),
+  createAttributeTemplate: (input: AttributeTemplateInput) =>
+    request<AttributeTemplate>("/lookups/attribute-templates", { method: "POST", body: JSON.stringify(input) }),
+  updateAttributeTemplate: (id: number, input: AttributeTemplateInput) =>
+    request<AttributeTemplate>(`/lookups/attribute-templates/${id}`, { method: "PUT", body: JSON.stringify(input) }),
+  removeAttributeTemplate: (id: number) =>
+    request<void>(`/lookups/attribute-templates/${id}`, { method: "DELETE" }),
 };
 
 export const customersApi = {
