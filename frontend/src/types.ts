@@ -181,10 +181,26 @@ export interface ActiveCustomerOrderMetric {
 
 export interface DashboardMetrics {
   salesOrdersInProgress: number;
-  revenueInRange: number;
-  fromDate: string;
-  toDate: string;
   topItems: TopItemMetric[];
   topCustomers: TopCustomerMetric[];
   activeCustomerOrders: ActiveCustomerOrderMetric[];
+}
+
+export interface RevenuePoint {
+  periodStart: string;
+  revenue: number;
+}
+
+export interface RevenueSeries {
+  granularity: string;
+  totalRevenue: number;
+  fromDate: string;
+  toDate: string;
+  points: RevenuePoint[];
+}
+
+export interface RevenueSeriesParams {
+  fromDate?: string;
+  toDate?: string;
+  customerId?: number;
 }

@@ -76,9 +76,10 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 
-    // The migration itself always creates this row (and backfills any pre-existing data
-    // onto it), so it's guaranteed to exist by the time we get here.
-    var defaultOrg = db.Organizations.First(o => o.Name == "Platform");
+    // The migration always creates the first organization row (and backfills any
+    // pre-existing data onto it), so it's guaranteed to exist by the time we get here.
+    // Matched by position rather than name/code, since both can be renamed later.
+    var defaultOrg = db.Organizations.OrderBy(o => o.Id).First();
 
     if (!db.Users.Any())
     {

@@ -135,6 +135,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<Organization>(entity =>
         {
             entity.Property(o => o.Name).IsRequired().HasMaxLength(200);
+            entity.Property(o => o.Code).IsRequired().HasMaxLength(50);
+            entity.HasIndex(o => o.Code).IsUnique();
         });
 
         modelBuilder.Entity<PartCategory>(entity =>

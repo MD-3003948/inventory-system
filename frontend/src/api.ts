@@ -8,6 +8,8 @@ import type {
   SalesOrderInput,
   SalesOrderStatus,
   DashboardMetrics,
+  RevenueSeries,
+  RevenueSeriesParams,
   Product,
   ProductCreateInput,
   ProductUpdateInput,
@@ -174,11 +176,13 @@ export const salesOrdersApi = {
 };
 
 export const dashboardApi = {
-  getMetrics: (fromDate?: string, toDate?: string) => {
-    const params = new URLSearchParams();
-    if (fromDate) params.set("fromDate", fromDate);
-    if (toDate) params.set("toDate", toDate);
-    const query = params.toString();
-    return request<DashboardMetrics>(`/dashboard/metrics${query ? `?${query}` : ""}`);
+  getMetrics: () => request<DashboardMetrics>("/dashboard/metrics"),
+  getRevenueSeries: (params: RevenueSeriesParams = {}) => {
+    const query = new URLSearchParams();
+    if (params.fromDate) query.set("fromDate", params.fromDate);
+    if (params.toDate) query.set("toDate", params.toDate);
+    if (params.customerId) query.set("customerId", String(params.customerId));
+    const queryString = query.toString();
+    return request<RevenueSeries>(`/dashboard/revenue-series${queryString ? `?${queryString}` : ""}`);
   },
 };

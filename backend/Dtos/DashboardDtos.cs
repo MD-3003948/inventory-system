@@ -25,10 +25,17 @@ public record ActiveCustomerOrderMetric(
 
 public record DashboardMetricsResponse(
     int SalesOrdersInProgress,
-    decimal RevenueInRange,
-    DateTimeOffset FromDate,
-    DateTimeOffset ToDate,
     List<TopItemMetric> TopItems,
     List<TopCustomerMetric> TopCustomers,
     List<ActiveCustomerOrderMetric> ActiveCustomerOrders
+);
+
+public record RevenuePoint(DateTimeOffset PeriodStart, decimal Revenue);
+
+public record RevenueSeriesResponse(
+    string Granularity,
+    decimal TotalRevenue,
+    DateTimeOffset FromDate,
+    DateTimeOffset ToDate,
+    List<RevenuePoint> Points
 );

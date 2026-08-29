@@ -1,27 +1,52 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { dashboardApi } from "../api";
-import type { DashboardMetrics } from "../types";
+import { dashboardApi, customersApi } from "../api";
+import type { Customer, DashboardMetrics, RevenueSeries } from "../types";
+import { RevenueChart } from "./RevenueChart";
 
 function toDateInputValue(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
+
+type Timeframe = "1w" | "1m" | "6m" | "1y" | "custom";
+
+const TIMEFRAME_LABELS: Record<Timeframe, string> = {
+  "1w": "1 Week",
+  "1m": "1 Month",
+  "6m": "6 Months",
+  "1y": "1 Year",
+  custom: "Custom",
+};
+
+const TIMEFRAME_DAYS: Record<Exclude<Timeframe, "custom">, number> = {
+  "1w": 7,
+  "1m": 30,
+  "6m": 182,
+  "1y": 365,
+};
 
 const defaultFrom = toDateInputValue(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
 const defaultTo = toDateInputValue(new Date());
 
 export function WelcomePage() {
   const { user } = useAuth();
-  const [fromDate, setFromDate] = useState(defaultFrom);
-  const [toDate, setToDate] = useState(defaultTo);
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [timeframe, setTimeframe] = useState<Timeframe>("1m");
+  const [customFrom, setCustomFrom] = useState(defaultFrom);
+  const [customTo, setCustomTo] = useState(defaultTo);
+  const [customerId, setCustomerId] = useState<number | "">("");
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [revenueSeries, setRevenueSeries] = useState<RevenueSeries | null>(null);
+  const [revenueLoading, setRevenueLoading] = useState(true);
+  const [revenueError, setRevenueError] = useState<string | null>(null);
+
   const loadMetrics = async () => {
     setLoading(true);
     try {
-      setMetrics(await dashboardApi.getMetrics(fromDate, toDate));
+      setMetrics(await dashboardApi.getMetrics());
       setError(null);
     } catch {
       setError("Could not load dashboard metrics.");
@@ -30,10 +55,42 @@ export function WelcomePage() {
     }
   };
 
+  const loadRevenue = async () => {
+    setRevenueLoading(true);
+    try {
+      const { fromDate, toDate } = timeframe === "custom"
+        ? { fromDate: customFrom, toDate: customTo }
+        : (() => {
+            const days = TIMEFRAME_DAYS[timeframe];
+            const to = new Date();
+            const from = new Date(to.getTime() - days * 24 * 60 * 60 * 1000);
+            return { fromDate: toDateInputValue(from), toDate: toDateInputValue(to) };
+          })();
+
+      const series = await dashboardApi.getRevenueSeries({
+        fromDate: `${fromDate}T00:00:00.000Z`,
+        toDate: `${toDate}T23:59:59.999Z`,
+        customerId: customerId === "" ? undefined : customerId,
+      });
+      setRevenueSeries(series);
+      setRevenueError(null);
+    } catch {
+      setRevenueError("Could not load revenue data.");
+    } finally {
+      setRevenueLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadMetrics();
+    customersApi.list().then(setCustomers).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    loadRevenue();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeframe, customerId, customFrom, customTo]);
 
   return (
     <div className="mx-auto w-[95%] py-10">
@@ -51,31 +108,59 @@ export function WelcomePage() {
           {/* Left half: Revenue on top, Most Active Customers below, one combined block */}
           <div className="terminal-panel flex flex-col p-5">
             <p className="text-sm uppercase tracking-wide text-term-amber">Revenue</p>
-            <p className="mt-1 text-3xl font-semibold">${metrics.revenueInRange.toFixed(2)}</p>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                loadMetrics();
-              }}
-              className="mt-3 flex items-center gap-2 text-xs text-term-green/60"
-            >
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
+
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-term-green/60">
+              <select
+                value={timeframe}
+                onChange={(e) => setTimeframe(e.target.value as Timeframe)}
                 className="terminal-input py-1"
-              />
-              <span>to</span>
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
+              >
+                {(Object.keys(TIMEFRAME_LABELS) as Timeframe[]).map((tf) => (
+                  <option key={tf} value={tf}>
+                    {TIMEFRAME_LABELS[tf]}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={customerId}
+                onChange={(e) => setCustomerId(e.target.value === "" ? "" : Number(e.target.value))}
                 className="terminal-input py-1"
-              />
-              <button type="submit" className="terminal-button px-3 py-1 text-xs">
-                Apply
-              </button>
-            </form>
+              >
+                <option value="">All Customers</option>
+                {customers.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+              {timeframe === "custom" && (
+                <>
+                  <input
+                    type="date"
+                    value={customFrom}
+                    onChange={(e) => setCustomFrom(e.target.value)}
+                    className="terminal-input py-1"
+                  />
+                  <span>to</span>
+                  <input
+                    type="date"
+                    value={customTo}
+                    onChange={(e) => setCustomTo(e.target.value)}
+                    className="terminal-input py-1"
+                  />
+                </>
+              )}
+            </div>
+
+            {revenueError && <p className="mt-3 text-sm text-term-danger">{revenueError}</p>}
+            {revenueLoading || !revenueSeries ? (
+              <p className="mt-6 text-sm text-term-green/60">Loading revenue...</p>
+            ) : (
+              <>
+                <p className="mt-3 text-3xl font-semibold">${revenueSeries.totalRevenue.toFixed(2)}</p>
+                <RevenueChart series={revenueSeries} />
+              </>
+            )}
 
             <div className="mt-6 border-t-2 border-term-amber/30 pt-4">
               <h2 className="text-sm">Most Active Customers</h2>
