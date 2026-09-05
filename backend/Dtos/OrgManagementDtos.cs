@@ -18,7 +18,6 @@ public record ManagedUserResponse(
 );
 
 public record CreateUserRequest(
-    string UserCode,
     string FirstName,
     string LastName,
     string Username,

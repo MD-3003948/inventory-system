@@ -66,7 +66,6 @@ export function UserAccountForm({ departments, editingUser, onCreate, onUpdate, 
         });
       } else {
         await onCreate({
-          userCode: form.userCode,
           firstName: form.firstName,
           lastName: form.lastName,
           username: form.username,
@@ -85,11 +84,10 @@ export function UserAccountForm({ departments, editingUser, onCreate, onUpdate, 
     <form onSubmit={handleSubmit} className="terminal-panel grid grid-cols-1 gap-3 p-4 sm:grid-cols-3">
       <FormField label="User Code">
         <input
-          required
-          disabled={!!editingUser}
-          placeholder="User Code"
+          disabled
+          readOnly
+          placeholder="Generated automatically"
           value={form.userCode}
-          onChange={(e) => setForm({ ...form, userCode: e.target.value })}
           className="terminal-input disabled:opacity-50"
         />
       </FormField>

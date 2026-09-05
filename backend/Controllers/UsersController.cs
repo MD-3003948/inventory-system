@@ -46,7 +46,7 @@ public class UsersController(AppDbContext db) : ControllerBase
 
         var newUser = new User
         {
-            UserCode = request.UserCode,
+            UserCode = UserCodeGenerator.Generate(db, request.PrivilegeLevel),
             FirstName = request.FirstName,
             LastName = request.LastName,
             Username = request.Username,

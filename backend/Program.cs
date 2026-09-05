@@ -89,7 +89,7 @@ using (var scope = app.Services.CreateScope())
 
         var admin = new User
         {
-            UserCode = "ADMIN-001",
+            UserCode = UserCodeGenerator.Generate(db, privilegeLevel: 0),
             FirstName = "Admin",
             LastName = "User",
             Username = adminUsername,

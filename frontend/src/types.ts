@@ -236,7 +236,6 @@ export interface ManagedUser {
 }
 
 export interface CreateUserInput {
-  userCode: string;
   firstName: string;
   lastName: string;
   username: string;
