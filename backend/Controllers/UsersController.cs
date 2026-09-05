@@ -32,7 +32,7 @@ public class UsersController(AppDbContext db) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<ManagedUserResponse>> Create(CreateUserRequest request)
+    public async Task<ActionResult<CreateUserResponse>> Create(CreateUserRequest request)
     {
         if (!User.IsAdmin()) return Forbid();
 
@@ -44,6 +44,8 @@ public class UsersController(AppDbContext db) : ControllerBase
             if (!departmentOk) return BadRequest("Invalid department.");
         }
 
+        var generatedPassword = PasswordGenerator.Generate();
+
         var newUser = new User
         {
             UserCode = UserCodeGenerator.Generate(db, request.PrivilegeLevel),
@@ -53,9 +55,10 @@ public class UsersController(AppDbContext db) : ControllerBase
             PrivilegeLevel = request.PrivilegeLevel,
             DepartmentId = request.DepartmentId,
             OrganizationId = orgId,
+            MustChangePassword = true,
             CreatedAt = DateTimeOffset.UtcNow,
         };
-        newUser.PasswordHash = PasswordHasher.HashPassword(newUser, request.Password);
+        newUser.PasswordHash = PasswordHasher.HashPassword(newUser, generatedPassword);
 
         db.Users.Add(newUser);
         try
@@ -68,7 +71,7 @@ public class UsersController(AppDbContext db) : ControllerBase
         }
 
         var full = await WithIncludes().FirstAsync(u => u.Id == newUser.Id);
-        return Ok(ToResponse(full));
+        return Ok(new CreateUserResponse(ToResponse(full), generatedPassword));
     }
 
     [HttpPut("{id:int}")]
@@ -105,6 +108,23 @@ public class UsersController(AppDbContext db) : ControllerBase
         return Ok(ToResponse(full));
     }
 
+    [HttpPost("{id:int}/reset-password")]
+    public async Task<ActionResult<ResetPasswordResponse>> ResetPassword(int id)
+    {
+        if (!User.IsAdmin()) return Forbid();
+
+        var orgId = User.GetOrganizationId();
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id && u.OrganizationId == orgId);
+        if (user is null) return NotFound();
+
+        var generatedPassword = PasswordGenerator.Generate();
+        user.PasswordHash = PasswordHasher.HashPassword(user, generatedPassword);
+        user.MustChangePassword = true;
+        await db.SaveChangesAsync();
+
+        return Ok(new ResetPasswordResponse(generatedPassword));
+    }
+
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -136,7 +156,7 @@ public class UsersController(AppDbContext db) : ControllerBase
 
     private static ManagedUserResponse ToResponse(User u) => new(
         u.Id, u.UserCode, u.FirstName, u.LastName, u.Username,
-        u.PrivilegeLevel, u.DepartmentId, u.Department?.Name,
+        u.PrivilegeLevel, u.DepartmentId, u.Department?.Name, u.MustChangePassword,
         u.LastLoginAt, u.CreatedAt
     );
 }

@@ -12,6 +12,7 @@ import { CustomersPage } from "./components/CustomersPage";
 import { SalesOrdersPage } from "./components/SalesOrdersPage";
 import { DepartmentsPage } from "./components/DepartmentsPage";
 import { UserAccountsPage } from "./components/UserAccountsPage";
+import { SettingsPage } from "./components/SettingsPage";
 import { NavBar } from "./components/NavBar";
 
 function AuthenticatedLayout() {
@@ -37,6 +38,7 @@ function App() {
           <Route path="/products/:id" element={<ProductDetailPage />} />
           <Route path="/customers" element={<CustomersPage />} />
           <Route path="/sales-orders" element={<SalesOrdersPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route element={<AdminRoute />}>
             <Route path="/org/departments" element={<DepartmentsPage />} />
             <Route path="/org/users" element={<UserAccountsPage />} />

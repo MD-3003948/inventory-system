@@ -25,7 +25,10 @@ import type {
   DepartmentInput,
   ManagedUser,
   CreateUserInput,
+  CreateUserResult,
   UpdateUserInput,
+  ResetPasswordResult,
+  ChangePasswordInput,
 } from "./types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -124,6 +127,11 @@ export const authApi = {
       body: JSON.stringify(credentials),
     }),
   me: () => request<CurrentUser>("/auth/me"),
+  changePassword: (input: ChangePasswordInput) =>
+    request<LoginResponse>("/auth/change-password", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
 };
 
 export const productsApi = {
@@ -238,8 +246,10 @@ export const departmentsApi = {
 export const userAccountsApi = {
   list: () => request<ManagedUser[]>("/users"),
   create: (input: CreateUserInput) =>
-    request<ManagedUser>("/users", { method: "POST", body: JSON.stringify(input) }),
+    request<CreateUserResult>("/users", { method: "POST", body: JSON.stringify(input) }),
   update: (id: number, input: UpdateUserInput) =>
     request<ManagedUser>(`/users/${id}`, { method: "PUT", body: JSON.stringify(input) }),
   remove: (id: number) => request<void>(`/users/${id}`, { method: "DELETE" }),
+  resetPassword: (id: number) =>
+    request<ResetPasswordResult>(`/users/${id}/reset-password`, { method: "POST" }),
 };

@@ -13,6 +13,7 @@ public record ManagedUserResponse(
     int PrivilegeLevel,
     int? DepartmentId,
     string? DepartmentName,
+    bool MustChangePassword,
     DateTimeOffset? LastLoginAt,
     DateTimeOffset CreatedAt
 );
@@ -21,10 +22,11 @@ public record CreateUserRequest(
     string FirstName,
     string LastName,
     string Username,
-    string Password,
     int PrivilegeLevel,
     int? DepartmentId
 );
+
+public record CreateUserResponse(ManagedUserResponse User, string GeneratedPassword);
 
 public record UpdateUserRequest(
     string FirstName,
@@ -33,3 +35,5 @@ public record UpdateUserRequest(
     int PrivilegeLevel,
     int? DepartmentId
 );
+
+public record ResetPasswordResponse(string GeneratedPassword);

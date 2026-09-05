@@ -13,6 +13,7 @@ public class User
     public int? DepartmentId { get; set; }
     public Department? Department { get; set; }
     public int PrivilegeLevel { get; set; }
+    public bool MustChangePassword { get; set; }
     public DateTimeOffset? LastLoginAt { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 }

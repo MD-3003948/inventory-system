@@ -1,12 +1,13 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { authApi, getStoredToken, setStoredToken, clearStoredToken } from "../api";
-import type { CurrentUser, LoginRequest } from "../types";
+import type { ChangePasswordInput, CurrentUser, LoginRequest } from "../types";
 
 interface AuthContextValue {
   user: CurrentUser | null;
   loading: boolean;
   login: (credentials: LoginRequest) => Promise<void>;
   logout: () => void;
+  changePassword: (input: ChangePasswordInput) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -49,8 +50,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const changePassword = async (input: ChangePasswordInput) => {
+    const response = await authApi.changePassword(input);
+    setStoredToken(response.token);
+    setUser(await authApi.me());
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, changePassword }}>
       {children}
     </AuthContext.Provider>
   );

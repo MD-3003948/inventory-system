@@ -16,7 +16,8 @@ public record LoginResponse(
     string UserCode,
     string FirstName,
     string LastName,
-    int PrivilegeLevel
+    int PrivilegeLevel,
+    bool MustChangePassword
 );
 
 public record CurrentUserResponse(
@@ -26,5 +27,18 @@ public record CurrentUserResponse(
     string Username,
     string Organization,
     int PrivilegeLevel,
-    DateTimeOffset? LastLoginAt
+    string? DepartmentName,
+    DateTimeOffset? LastLoginAt,
+    DateTimeOffset CreatedAt,
+    bool MustChangePassword
 );
+
+public class ChangePasswordRequest
+{
+    [Required]
+    public string CurrentPassword { get; set; } = string.Empty;
+
+    [Required]
+    [MinLength(8)]
+    public string NewPassword { get; set; } = string.Empty;
+}

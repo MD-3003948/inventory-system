@@ -16,7 +16,6 @@ interface FormState {
   firstName: string;
   lastName: string;
   username: string;
-  password: string;
   privilegeLevel: number;
   departmentId: number | "";
 }
@@ -26,7 +25,6 @@ const emptyForm: FormState = {
   firstName: "",
   lastName: "",
   username: "",
-  password: "",
   privilegeLevel: 2,
   departmentId: "",
 };
@@ -43,7 +41,6 @@ export function UserAccountForm({ departments, editingUser, onCreate, onUpdate, 
             firstName: editingUser.firstName,
             lastName: editingUser.lastName,
             username: editingUser.username,
-            password: "",
             privilegeLevel: editingUser.privilegeLevel,
             departmentId: editingUser.departmentId ?? "",
           }
@@ -69,7 +66,6 @@ export function UserAccountForm({ departments, editingUser, onCreate, onUpdate, 
           firstName: form.firstName,
           lastName: form.lastName,
           username: form.username,
-          password: form.password,
           privilegeLevel: form.privilegeLevel,
           departmentId,
         });
@@ -118,18 +114,6 @@ export function UserAccountForm({ departments, editingUser, onCreate, onUpdate, 
           className="terminal-input"
         />
       </FormField>
-      {!editingUser && (
-        <FormField label="Password">
-          <input
-            required
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            className="terminal-input"
-          />
-        </FormField>
-      )}
       <FormField label="Privilege Level">
         <select
           value={form.privilegeLevel}

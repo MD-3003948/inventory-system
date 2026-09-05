@@ -100,6 +100,7 @@ export interface LoginResponse {
   firstName: string;
   lastName: string;
   privilegeLevel: number;
+  mustChangePassword: boolean;
 }
 
 export interface CurrentUser {
@@ -109,7 +110,15 @@ export interface CurrentUser {
   username: string;
   organization: string;
   privilegeLevel: number;
+  departmentName: string | null;
   lastLoginAt: string | null;
+  createdAt: string;
+  mustChangePassword: boolean;
+}
+
+export interface ChangePasswordInput {
+  currentPassword: string;
+  newPassword: string;
 }
 
 export interface Customer {
@@ -231,6 +240,7 @@ export interface ManagedUser {
   privilegeLevel: number;
   departmentId: number | null;
   departmentName: string | null;
+  mustChangePassword: boolean;
   lastLoginAt: string | null;
   createdAt: string;
 }
@@ -239,9 +249,17 @@ export interface CreateUserInput {
   firstName: string;
   lastName: string;
   username: string;
-  password: string;
   privilegeLevel: number;
   departmentId: number | null;
+}
+
+export interface CreateUserResult {
+  user: ManagedUser;
+  generatedPassword: string;
+}
+
+export interface ResetPasswordResult {
+  generatedPassword: string;
 }
 
 export interface UpdateUserInput {

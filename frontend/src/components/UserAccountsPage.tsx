@@ -5,6 +5,12 @@ import { UserAccountForm } from "./UserAccountForm";
 import type { CreateUserInput, Department, ManagedUser, UpdateUserInput } from "../types";
 import { privilegeLevelLabel } from "../types";
 
+interface GeneratedPasswordInfo {
+  userCode: string;
+  username: string;
+  password: string;
+}
+
 export function UserAccountsPage() {
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<ManagedUser[]>([]);
@@ -12,6 +18,7 @@ export function UserAccountsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<ManagedUser | null>(null);
+  const [generatedPassword, setGeneratedPassword] = useState<GeneratedPasswordInfo | null>(null);
 
   const loadAll = async () => {
     setLoading(true);
@@ -34,10 +41,26 @@ export function UserAccountsPage() {
   const handleCreate = async (input: CreateUserInput) => {
     setError(null);
     try {
-      await userAccountsApi.create(input);
+      const result = await userAccountsApi.create(input);
+      setGeneratedPassword({
+        userCode: result.user.userCode,
+        username: result.user.username,
+        password: result.generatedPassword,
+      });
       await loadAll();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Could not create the user.");
+    }
+  };
+
+  const handleResetPassword = async (u: ManagedUser) => {
+    setError(null);
+    try {
+      const result = await userAccountsApi.resetPassword(u.id);
+      setGeneratedPassword({ userCode: u.userCode, username: u.username, password: result.generatedPassword });
+      await loadAll();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Could not reset the password.");
     }
   };
 
@@ -67,6 +90,21 @@ export function UserAccountsPage() {
       <h1 className="text-2xl font-semibold">User Accounts</h1>
       <p className="mt-1 text-sm text-term-green/60">Create accounts, assign departments, and set privilege levels.</p>
 
+      {generatedPassword && (
+        <div className="terminal-panel mt-6 flex items-center justify-between gap-4 border-term-green p-4">
+          <p className="text-sm">
+            Temporary password for <span className="font-semibold text-term-amber">{generatedPassword.username}</span>{" "}
+            ({generatedPassword.userCode}):{" "}
+            <span className="font-mono text-lg font-semibold text-term-green">{generatedPassword.password}</span>
+            <br />
+            <span className="text-term-green/60">Copy this now — it won't be shown again. They'll be asked to change it on first login.</span>
+          </p>
+          <button onClick={() => setGeneratedPassword(null)} className="terminal-button-secondary shrink-0">
+            Dismiss
+          </button>
+        </div>
+      )}
+
       <div className="mt-6">
         <UserAccountForm
           departments={departments}
@@ -91,6 +129,7 @@ export function UserAccountsPage() {
               <th className="px-4 py-2">Username</th>
               <th className="px-4 py-2">Privilege</th>
               <th className="px-4 py-2">Department</th>
+              <th className="px-4 py-2">Status</th>
               <th className="px-4 py-2">Last Login</th>
               <th className="px-4 py-2"></th>
             </tr>
@@ -107,12 +146,22 @@ export function UserAccountsPage() {
                   <td className="px-4 py-2 text-term-green/70">{u.username}</td>
                   <td className="px-4 py-2 text-term-green/70">{privilegeLevelLabel(u.privilegeLevel)}</td>
                   <td className="px-4 py-2 text-term-green/70">{u.departmentName ?? "—"}</td>
+                  <td className="px-4 py-2">
+                    {u.mustChangePassword ? (
+                      <span className="text-term-amber">Pending Password Change</span>
+                    ) : (
+                      <span className="text-term-green/70">Active</span>
+                    )}
+                  </td>
                   <td className="px-4 py-2 text-term-green/70">
                     {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString() : "Never"}
                   </td>
-                  <td className="px-4 py-2 text-right">
+                  <td className="px-4 py-2 text-right whitespace-nowrap">
                     <button onClick={() => setEditingUser(u)} className="mr-3 text-term-amber hover:underline">
                       Edit
+                    </button>
+                    <button onClick={() => handleResetPassword(u)} className="mr-3 text-term-amber hover:underline">
+                      Reset Password
                     </button>
                     <button
                       onClick={() => handleDelete(u.id)}
