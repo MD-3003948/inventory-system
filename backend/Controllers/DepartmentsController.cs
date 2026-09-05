@@ -13,11 +13,11 @@ namespace InventorySystem.Api.Controllers;
 [Authorize]
 public class DepartmentsController(AppDbContext db) : ControllerBase
 {
+    // Viewing the department list is open to any org member (needed for filters/dropdowns
+    // elsewhere, e.g. the Products page) - only managing departments is admin-only.
     [HttpGet]
     public async Task<ActionResult<IEnumerable<DepartmentResponse>>> GetAll()
     {
-        if (!User.IsAdmin()) return Forbid();
-
         var orgId = User.GetOrganizationId();
         var departments = await db.Departments
             .Where(d => d.OrganizationId == orgId)

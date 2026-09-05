@@ -49,6 +49,8 @@ export interface Product {
   customerCategoryName: string;
   assignedCustomerId: number | null;
   assignedCustomerName: string | null;
+  departmentId: number | null;
+  departmentName: string | null;
   imageUrl: string | null;
   createdByUserId: number;
   createdByUserName: string;
@@ -65,6 +67,7 @@ export interface ProductCreateInput {
   attributeTemplateId: number | null;
   customerCategoryId: number;
   assignedCustomerId: number | null;
+  departmentId: number | null;
   unitPrice: number;
   image: File | null;
 }
@@ -78,6 +81,7 @@ export interface ProductUpdateInput {
   attributeTemplateId: number | null;
   customerCategoryId: number;
   assignedCustomerId: number | null;
+  departmentId: number | null;
   quantity: number;
   unitPrice: number;
 }
@@ -87,6 +91,7 @@ export interface ProductSearchParams {
   partCategoryId?: number;
   partSubCategoryId?: number;
   assignedCustomerId?: number;
+  departmentId?: number;
 }
 
 export interface LoginRequest {

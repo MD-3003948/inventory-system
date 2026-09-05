@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { productsApi, lookupsApi, customersApi } from "../api";
-import type { Product, PartCategory, PartSubCategory, Customer } from "../types";
+import { productsApi, lookupsApi, customersApi, departmentsApi } from "../api";
+import type { Product, PartCategory, PartSubCategory, Customer, Department } from "../types";
 import { FormField } from "./FormField";
 
 export function ProductsPage() {
@@ -13,15 +13,18 @@ export function ProductsPage() {
   const [categories, setCategories] = useState<PartCategory[]>([]);
   const [subCategories, setSubCategories] = useState<PartSubCategory[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
 
   const [sku, setSku] = useState("");
   const [partCategoryId, setPartCategoryId] = useState<number | "">("");
   const [partSubCategoryId, setPartSubCategoryId] = useState<number | "">("");
   const [assignedCustomerId, setAssignedCustomerId] = useState<number | "">("");
+  const [departmentId, setDepartmentId] = useState<number | "">("");
 
   useEffect(() => {
     lookupsApi.partCategories().then(setCategories).catch(() => {});
     customersApi.list().then(setCustomers).catch(() => {});
+    departmentsApi.list().then(setDepartments).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -42,6 +45,7 @@ export function ProductsPage() {
           partCategoryId: partCategoryId || undefined,
           partSubCategoryId: partSubCategoryId || undefined,
           assignedCustomerId: assignedCustomerId || undefined,
+          departmentId: departmentId || undefined,
         })
       );
       setError(null);
@@ -122,6 +126,20 @@ export function ProductsPage() {
             {customers.map((c) => (
               <option key={c.id} value={c.id} className="bg-term-bg text-term-green">
                 {c.name}
+              </option>
+            ))}
+          </select>
+        </FormField>
+        <FormField label="Department">
+          <select
+            value={departmentId}
+            onChange={(e) => setDepartmentId(e.target.value ? Number(e.target.value) : "")}
+            className="terminal-input"
+          >
+            <option value="">All Departments</option>
+            {departments.map((d) => (
+              <option key={d.id} value={d.id} className="bg-term-bg text-term-green">
+                {d.name}
               </option>
             ))}
           </select>

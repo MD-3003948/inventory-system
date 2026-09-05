@@ -21,7 +21,8 @@ public class ProductsController(AppDbContext db, IWebHostEnvironment env) : Cont
         [FromQuery] string? sku,
         [FromQuery] int? partCategoryId,
         [FromQuery] int? partSubCategoryId,
-        [FromQuery] int? assignedCustomerId)
+        [FromQuery] int? assignedCustomerId,
+        [FromQuery] int? departmentId)
     {
         var orgId = User.GetOrganizationId();
         var query = WithIncludes().Where(p => p.OrganizationId == orgId);
@@ -41,6 +42,10 @@ public class ProductsController(AppDbContext db, IWebHostEnvironment env) : Cont
         if (assignedCustomerId.HasValue)
         {
             query = query.Where(p => p.AssignedCustomerId == assignedCustomerId.Value);
+        }
+        if (departmentId.HasValue)
+        {
+            query = query.Where(p => p.DepartmentId == departmentId.Value);
         }
 
         var products = await query.OrderBy(p => p.Name).ToListAsync();
@@ -64,7 +69,7 @@ public class ProductsController(AppDbContext db, IWebHostEnvironment env) : Cont
         var orgId = User.GetOrganizationId();
 
         var lookupError = await ValidateLookupsAsync(orgId, request.PartCategoryId, request.PartSubCategoryId,
-            request.CustomerCategoryId, request.AttributeTemplateId, request.AssignedCustomerId);
+            request.CustomerCategoryId, request.AttributeTemplateId, request.AssignedCustomerId, request.DepartmentId);
         if (lookupError is not null) return BadRequest(lookupError);
 
         string? imagePath = null;
@@ -88,6 +93,7 @@ public class ProductsController(AppDbContext db, IWebHostEnvironment env) : Cont
             AttributeTemplateId = request.AttributeTemplateId,
             CustomerCategoryId = request.CustomerCategoryId,
             AssignedCustomerId = request.AssignedCustomerId,
+            DepartmentId = request.DepartmentId,
             ImagePath = imagePath,
             CreatedByUserId = User.GetUserId(),
             OrganizationId = orgId,
@@ -110,7 +116,7 @@ public class ProductsController(AppDbContext db, IWebHostEnvironment env) : Cont
         if (product is null) return NotFound();
 
         var lookupError = await ValidateLookupsAsync(orgId, request.PartCategoryId, request.PartSubCategoryId,
-            request.CustomerCategoryId, request.AttributeTemplateId, request.AssignedCustomerId);
+            request.CustomerCategoryId, request.AttributeTemplateId, request.AssignedCustomerId, request.DepartmentId);
         if (lookupError is not null) return BadRequest(lookupError);
 
         product.Sku = request.Sku;
@@ -123,6 +129,7 @@ public class ProductsController(AppDbContext db, IWebHostEnvironment env) : Cont
         product.AttributeTemplateId = request.AttributeTemplateId;
         product.CustomerCategoryId = request.CustomerCategoryId;
         product.AssignedCustomerId = request.AssignedCustomerId;
+        product.DepartmentId = request.DepartmentId;
         product.UpdatedAt = DateTimeOffset.UtcNow;
 
         await db.SaveChangesAsync();
@@ -146,7 +153,7 @@ public class ProductsController(AppDbContext db, IWebHostEnvironment env) : Cont
 
     private async Task<string?> ValidateLookupsAsync(
         int orgId, int partCategoryId, int partSubCategoryId, int customerCategoryId,
-        int? attributeTemplateId, int? assignedCustomerId)
+        int? attributeTemplateId, int? assignedCustomerId, int? departmentId)
     {
         var partCategoryOk = await db.PartCategories.AnyAsync(c => c.Id == partCategoryId && c.OrganizationId == orgId);
         if (!partCategoryOk) return "Invalid part category.";
@@ -168,6 +175,12 @@ public class ProductsController(AppDbContext db, IWebHostEnvironment env) : Cont
         {
             var customerOk = await db.Customers.AnyAsync(c => c.Id == assignedCustomerId && c.OrganizationId == orgId);
             if (!customerOk) return "Invalid assigned customer.";
+        }
+
+        if (departmentId.HasValue)
+        {
+            var departmentOk = await db.Departments.AnyAsync(d => d.Id == departmentId && d.OrganizationId == orgId);
+            if (!departmentOk) return "Invalid department.";
         }
 
         return null;
@@ -210,6 +223,7 @@ public class ProductsController(AppDbContext db, IWebHostEnvironment env) : Cont
             .Include(p => p.AttributeTemplate)
             .Include(p => p.CustomerCategory)
             .Include(p => p.AssignedCustomer)
+            .Include(p => p.Department)
             .Include(p => p.CreatedByUser);
 
     private static ProductResponse ToResponse(Product p) => new(
@@ -219,6 +233,7 @@ public class ProductsController(AppDbContext db, IWebHostEnvironment env) : Cont
         p.AttributeTemplateId, p.AttributeTemplate?.Name,
         p.CustomerCategoryId, p.CustomerCategory?.Name ?? string.Empty,
         p.AssignedCustomerId, p.AssignedCustomer?.Name,
+        p.DepartmentId, p.Department?.Name,
         p.ImagePath is null ? null : $"/api/uploads/{p.ImagePath}",
         p.CreatedByUserId, p.CreatedByUser?.Username ?? string.Empty,
         p.CreatedAt, p.UpdatedAt

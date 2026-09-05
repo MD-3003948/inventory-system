@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { productsApi, lookupsApi, customersApi } from "../api";
+import { productsApi, lookupsApi, customersApi, departmentsApi } from "../api";
 import { FormField } from "./FormField";
 import type {
   PartCategory,
@@ -8,6 +8,7 @@ import type {
   CustomerCategory,
   AttributeTemplate,
   Customer,
+  Department,
 } from "../types";
 
 export function CreateProductPage() {
@@ -18,6 +19,7 @@ export function CreateProductPage() {
   const [customerCategories, setCustomerCategories] = useState<CustomerCategory[]>([]);
   const [templates, setTemplates] = useState<AttributeTemplate[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
 
   const [sku, setSku] = useState("");
   const [name, setName] = useState("");
@@ -27,6 +29,7 @@ export function CreateProductPage() {
   const [attributeTemplateId, setAttributeTemplateId] = useState<number | "">("");
   const [customerCategoryId, setCustomerCategoryId] = useState<number | "">("");
   const [assignedCustomerId, setAssignedCustomerId] = useState<number | "">("");
+  const [departmentId, setDepartmentId] = useState<number | "">("");
   const [unitPrice, setUnitPrice] = useState(0);
 
   const [image, setImage] = useState<File | null>(null);
@@ -41,6 +44,7 @@ export function CreateProductPage() {
     lookupsApi.customerCategories().then(setCustomerCategories).catch(() => {});
     lookupsApi.attributeTemplates().then(setTemplates).catch(() => {});
     customersApi.list().then(setCustomers).catch(() => {});
+    departmentsApi.list().then(setDepartments).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -84,6 +88,7 @@ export function CreateProductPage() {
         attributeTemplateId: attributeTemplateId || null,
         customerCategoryId,
         assignedCustomerId: assignedCustomerId || null,
+        departmentId: departmentId || null,
         unitPrice,
         image,
       });
@@ -204,6 +209,21 @@ export function CreateProductPage() {
             {customers.map((c) => (
               <option key={c.id} value={c.id} className="bg-term-bg text-term-green">
                 {c.name}
+              </option>
+            ))}
+          </select>
+        </FormField>
+
+        <FormField label="Department (optional)">
+          <select
+            value={departmentId}
+            onChange={(e) => setDepartmentId(e.target.value ? Number(e.target.value) : "")}
+            className="terminal-input"
+          >
+            <option value="">Department (optional)...</option>
+            {departments.map((d) => (
+              <option key={d.id} value={d.id} className="bg-term-bg text-term-green">
+                {d.name}
               </option>
             ))}
           </select>

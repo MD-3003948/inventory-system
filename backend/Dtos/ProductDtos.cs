@@ -19,6 +19,8 @@ public record ProductResponse(
     string CustomerCategoryName,
     int? AssignedCustomerId,
     string? AssignedCustomerName,
+    int? DepartmentId,
+    string? DepartmentName,
     string? ImageUrl,
     int CreatedByUserId,
     string CreatedByUserName,
@@ -52,6 +54,8 @@ public class ProductCreateRequest
 
     public int? AssignedCustomerId { get; set; }
 
+    public int? DepartmentId { get; set; }
+
     [Range(0, double.MaxValue)]
     public decimal UnitPrice { get; set; }
 
@@ -81,6 +85,8 @@ public class ProductUpdateRequest
     public int CustomerCategoryId { get; set; }
 
     public int? AssignedCustomerId { get; set; }
+
+    public int? DepartmentId { get; set; }
 
     [Range(0, int.MaxValue)]
     public int Quantity { get; set; }

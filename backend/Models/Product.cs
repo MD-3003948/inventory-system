@@ -26,6 +26,9 @@ public class Product
     public int CustomerCategoryId { get; set; }
     public CustomerCategory? CustomerCategory { get; set; }
 
+    public int? DepartmentId { get; set; }
+    public Department? Department { get; set; }
+
     // The specific customer this part is dedicated to, if any - distinct from CustomerCategory,
     // which is a broader market segment/tier rather than one specific customer.
     public int? AssignedCustomerId { get; set; }

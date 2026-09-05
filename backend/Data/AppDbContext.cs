@@ -65,6 +65,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .HasForeignKey(p => p.AssignedCustomerId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            entity.HasOne(p => p.Department)
+                .WithMany()
+                .HasForeignKey(p => p.DepartmentId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             entity.HasOne(p => p.CreatedByUser)
                 .WithMany()
                 .HasForeignKey(p => p.CreatedByUserId)

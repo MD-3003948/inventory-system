@@ -74,6 +74,7 @@ export function ProductDetailPage() {
             <Field label="Customer Category" value={product.customerCategoryName} />
             <Field label="Attribute Template" value={product.attributeTemplateName ?? "—"} />
             <Field label="Assigned Customer" value={product.assignedCustomerName ?? "—"} />
+            <Field label="Department" value={product.departmentName ?? "—"} />
             <Field label="Cost / Unit" value={`$${product.unitPrice.toFixed(2)}`} />
             <Field label="Quantity In Stock" value={product.quantity} />
             <Field label="Created By" value={product.createdByUserName} />

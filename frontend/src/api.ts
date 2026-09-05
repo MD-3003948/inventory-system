@@ -113,6 +113,9 @@ function buildProductFormData(product: ProductCreateInput): FormData {
   if (product.assignedCustomerId !== null) {
     formData.set("AssignedCustomerId", String(product.assignedCustomerId));
   }
+  if (product.departmentId !== null) {
+    formData.set("DepartmentId", String(product.departmentId));
+  }
   formData.set("UnitPrice", String(product.unitPrice));
   if (product.image) {
     formData.set("Image", product.image);
@@ -141,6 +144,7 @@ export const productsApi = {
     if (params?.partCategoryId) query.set("partCategoryId", String(params.partCategoryId));
     if (params?.partSubCategoryId) query.set("partSubCategoryId", String(params.partSubCategoryId));
     if (params?.assignedCustomerId) query.set("assignedCustomerId", String(params.assignedCustomerId));
+    if (params?.departmentId) query.set("departmentId", String(params.departmentId));
     const qs = query.toString();
     return request<Product[]>(`/products${qs ? `?${qs}` : ""}`);
   },
