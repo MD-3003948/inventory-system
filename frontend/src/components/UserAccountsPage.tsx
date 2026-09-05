@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { departmentsApi, userAccountsApi, ApiError } from "../api";
 import { useAuth } from "../context/AuthContext";
 import { UserAccountForm } from "./UserAccountForm";
+import { FormField } from "./FormField";
 import type { CreateUserInput, Department, ManagedUser, UpdateUserInput } from "../types";
 import { privilegeLevelLabel } from "../types";
 
@@ -11,6 +12,9 @@ interface GeneratedPasswordInfo {
   password: string;
 }
 
+type StatusFilter = "all" | "active" | "pending";
+type LastLoginSort = "none" | "asc" | "desc";
+
 export function UserAccountsPage() {
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<ManagedUser[]>([]);
@@ -19,6 +23,10 @@ export function UserAccountsPage() {
   const [error, setError] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<ManagedUser | null>(null);
   const [generatedPassword, setGeneratedPassword] = useState<GeneratedPasswordInfo | null>(null);
+
+  const [departmentFilter, setDepartmentFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [lastLoginSort, setLastLoginSort] = useState<LastLoginSort>("none");
 
   const loadAll = async () => {
     setLoading(true);
@@ -85,6 +93,34 @@ export function UserAccountsPage() {
     }
   };
 
+  const visibleUsers = useMemo(() => {
+    let result = users;
+
+    if (departmentFilter === "none") {
+      result = result.filter((u) => u.departmentId === null);
+    } else if (departmentFilter !== "") {
+      const id = Number(departmentFilter);
+      result = result.filter((u) => u.departmentId === id);
+    }
+
+    if (statusFilter === "active") {
+      result = result.filter((u) => !u.mustChangePassword);
+    } else if (statusFilter === "pending") {
+      result = result.filter((u) => u.mustChangePassword);
+    }
+
+    if (lastLoginSort !== "none") {
+      const direction = lastLoginSort === "asc" ? 1 : -1;
+      result = [...result].sort((a, b) => {
+        const aTime = a.lastLoginAt ? new Date(a.lastLoginAt).getTime() : 0;
+        const bTime = b.lastLoginAt ? new Date(b.lastLoginAt).getTime() : 0;
+        return (aTime - bTime) * direction;
+      });
+    }
+
+    return result;
+  }, [users, departmentFilter, statusFilter, lastLoginSort]);
+
   return (
     <div className="mx-auto w-[95%] py-10">
       <h1 className="text-2xl font-semibold">User Accounts</h1>
@@ -116,10 +152,53 @@ export function UserAccountsPage() {
       </div>
 
       {error && <p className="mt-4 text-sm text-term-danger">{error}</p>}
+
+      <div className="terminal-panel mt-6 grid grid-cols-1 gap-3 p-4 sm:grid-cols-3">
+        <FormField label="Filter by Department">
+          <select
+            value={departmentFilter}
+            onChange={(e) => setDepartmentFilter(e.target.value)}
+            className="terminal-input"
+          >
+            <option value="">All Departments</option>
+            <option value="none">No Department</option>
+            {departments.map((d) => (
+              <option key={d.id} value={d.id} className="bg-term-bg text-term-green">
+                {d.name}
+              </option>
+            ))}
+          </select>
+        </FormField>
+        <FormField label="Filter by Status">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+            className="terminal-input"
+          >
+            <option value="all">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="pending">Pending Password Change</option>
+          </select>
+        </FormField>
+        <FormField label="Sort by Last Login">
+          <select
+            value={lastLoginSort}
+            onChange={(e) => setLastLoginSort(e.target.value as LastLoginSort)}
+            className="terminal-input"
+          >
+            <option value="none">Default</option>
+            <option value="desc">Most Recent First</option>
+            <option value="asc">Oldest First</option>
+          </select>
+        </FormField>
+      </div>
+
       {loading ? (
         <p className="mt-6 text-sm text-term-green/60">Loading...</p>
       ) : users.length === 0 ? (
         <p className="mt-6 text-sm text-term-green/60">No users yet.</p>
+      ) : visibleUsers.length === 0 ? (
+        <p className="mt-6 text-sm text-term-green/60">No users match your filters.</p>
       ) : (
         <table className="mt-6 w-full border-collapse border-2 border-term-amber text-left text-sm">
           <thead className="bg-term-panel text-term-amber">
@@ -135,7 +214,7 @@ export function UserAccountsPage() {
             </tr>
           </thead>
           <tbody>
-            {users.map((u) => {
+            {visibleUsers.map((u) => {
               const isSelf = u.username === currentUser?.username;
               return (
                 <tr key={u.id} className="border-t border-term-amber/30">
