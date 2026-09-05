@@ -1,6 +1,7 @@
 import { Routes, Route, Outlet } from "react-router-dom";
 import { LoginPage } from "./components/LoginPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AdminRoute } from "./components/AdminRoute";
 import { WelcomePage } from "./components/WelcomePage";
 import { ProductsPage } from "./components/ProductsPage";
 import { CreateProductPage } from "./components/CreateProductPage";
@@ -9,6 +10,8 @@ import { AttributeTemplatesPage } from "./components/AttributeTemplatesPage";
 import { CategorizationPage } from "./components/CategorizationPage";
 import { CustomersPage } from "./components/CustomersPage";
 import { SalesOrdersPage } from "./components/SalesOrdersPage";
+import { DepartmentsPage } from "./components/DepartmentsPage";
+import { UserAccountsPage } from "./components/UserAccountsPage";
 import { NavBar } from "./components/NavBar";
 
 function AuthenticatedLayout() {
@@ -34,6 +37,10 @@ function App() {
           <Route path="/products/:id" element={<ProductDetailPage />} />
           <Route path="/customers" element={<CustomersPage />} />
           <Route path="/sales-orders" element={<SalesOrdersPage />} />
+          <Route element={<AdminRoute />}>
+            <Route path="/org/departments" element={<DepartmentsPage />} />
+            <Route path="/org/users" element={<UserAccountsPage />} />
+          </Route>
         </Route>
       </Route>
     </Routes>

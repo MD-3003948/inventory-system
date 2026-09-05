@@ -212,6 +212,57 @@ export interface RevenueSeries {
   points: RevenuePoint[];
 }
 
+export interface Department {
+  id: number;
+  name: string;
+  userCount: number;
+}
+
+export interface DepartmentInput {
+  name: string;
+}
+
+export interface ManagedUser {
+  id: number;
+  userCode: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+  privilegeLevel: number;
+  departmentId: number | null;
+  departmentName: string | null;
+  lastLoginAt: string | null;
+  createdAt: string;
+}
+
+export interface CreateUserInput {
+  userCode: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+  password: string;
+  privilegeLevel: number;
+  departmentId: number | null;
+}
+
+export interface UpdateUserInput {
+  firstName: string;
+  lastName: string;
+  username: string;
+  privilegeLevel: number;
+  departmentId: number | null;
+}
+
+export const PRIVILEGE_LEVELS: { value: number; label: string }[] = [
+  { value: 0, label: "Admin" },
+  { value: 1, label: "Manager" },
+  { value: 2, label: "Employee" },
+];
+
+export function privilegeLevelLabel(level: number): string {
+  return PRIVILEGE_LEVELS.find((p) => p.value === level)?.label ?? `Level ${level}`;
+}
+
 export interface RevenueSeriesParams {
   fromDate?: string;
   toDate?: string;

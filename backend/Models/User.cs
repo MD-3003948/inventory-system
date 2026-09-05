@@ -10,6 +10,8 @@ public class User
     public string PasswordHash { get; set; } = string.Empty;
     public int OrganizationId { get; set; }
     public Organization? Organization { get; set; }
+    public int? DepartmentId { get; set; }
+    public Department? Department { get; set; }
     public int PrivilegeLevel { get; set; }
     public DateTimeOffset? LastLoginAt { get; set; }
     public DateTimeOffset CreatedAt { get; set; }

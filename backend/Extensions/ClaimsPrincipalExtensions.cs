@@ -25,4 +25,18 @@ public static class ClaimsPrincipalExtensions
 
         return userId;
     }
+
+    public static int GetPrivilegeLevel(this ClaimsPrincipal user)
+    {
+        var value = user.FindFirstValue("privilege_level");
+        if (value is null || !int.TryParse(value, out var privilegeLevel))
+        {
+            throw new InvalidOperationException("Token is missing the privilege_level claim.");
+        }
+
+        return privilegeLevel;
+    }
+
+    // Privilege level 0 is the Admin tier - see PrivilegeLevel seeding in Program.cs.
+    public static bool IsAdmin(this ClaimsPrincipal user) => user.GetPrivilegeLevel() == 0;
 }

@@ -21,6 +21,11 @@ import type {
   CustomerCategory,
   AttributeTemplate,
   AttributeTemplateInput,
+  Department,
+  DepartmentInput,
+  ManagedUser,
+  CreateUserInput,
+  UpdateUserInput,
 } from "./types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -219,4 +224,22 @@ export const dashboardApi = {
     const queryString = query.toString();
     return request<RevenueSeries>(`/dashboard/revenue-series${queryString ? `?${queryString}` : ""}`);
   },
+};
+
+export const departmentsApi = {
+  list: () => request<Department[]>("/departments"),
+  create: (input: DepartmentInput) =>
+    request<Department>("/departments", { method: "POST", body: JSON.stringify(input) }),
+  update: (id: number, input: DepartmentInput) =>
+    request<Department>(`/departments/${id}`, { method: "PUT", body: JSON.stringify(input) }),
+  remove: (id: number) => request<void>(`/departments/${id}`, { method: "DELETE" }),
+};
+
+export const userAccountsApi = {
+  list: () => request<ManagedUser[]>("/users"),
+  create: (input: CreateUserInput) =>
+    request<ManagedUser>("/users", { method: "POST", body: JSON.stringify(input) }),
+  update: (id: number, input: UpdateUserInput) =>
+    request<ManagedUser>(`/users/${id}`, { method: "PUT", body: JSON.stringify(input) }),
+  remove: (id: number) => request<void>(`/users/${id}`, { method: "DELETE" }),
 };

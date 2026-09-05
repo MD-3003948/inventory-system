@@ -129,6 +129,15 @@ using (var scope = app.Services.CreateScope())
         db.SaveChanges();
     }
 
+    if (!db.Departments.Any(d => d.Name == "Operations"))
+    {
+        db.Departments.AddRange(
+            new Department { Name = "Operations", OrganizationId = defaultOrg.Id },
+            new Department { Name = "Sales", OrganizationId = defaultOrg.Id }
+        );
+        db.SaveChanges();
+    }
+
     if (!db.CustomerCategories.Any(c => c.Name == "OEM"))
     {
         db.CustomerCategories.AddRange(

@@ -40,6 +40,31 @@ function ProductManagementMenu() {
   );
 }
 
+function OrgCommandMenu() {
+  const location = useLocation();
+  const isActive = location.pathname.startsWith("/org");
+
+  return (
+    <div className="group relative">
+      <button
+        className={`text-sm font-medium uppercase tracking-wide ${
+          isActive ? "text-term-amber" : "text-term-green/60 hover:text-term-green"
+        }`}
+      >
+        Org Command
+      </button>
+      <div className="invisible absolute left-0 top-full z-10 min-w-[200px] border-2 border-term-amber bg-term-panel opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
+        <NavLink to="/org/departments" className={dropdownLinkClass}>
+          Departments
+        </NavLink>
+        <NavLink to="/org/users" className={dropdownLinkClass}>
+          User Accounts
+        </NavLink>
+      </div>
+    </div>
+  );
+}
+
 export function NavBar() {
   const { user, logout } = useAuth();
 
@@ -58,6 +83,7 @@ export function NavBar() {
             <NavLink to="/sales-orders" className={linkClass}>
               Sales Orders
             </NavLink>
+            {user?.privilegeLevel === 0 && <OrgCommandMenu />}
           </div>
         </div>
         <div className="flex items-center gap-3">
