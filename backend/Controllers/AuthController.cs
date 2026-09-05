@@ -91,6 +91,12 @@ public class AuthController(AppDbContext db, IConfiguration config) : Controller
             return BadRequest("Current password is incorrect.");
         }
 
+        var policyError = PasswordPolicy.Validate(request.NewPassword);
+        if (policyError is not null)
+        {
+            return BadRequest(policyError);
+        }
+
         user.PasswordHash = PasswordHasher.HashPassword(user, request.NewPassword);
         user.MustChangePassword = false;
         await db.SaveChangesAsync();

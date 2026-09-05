@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { ApiError } from "../api";
 import { FormField } from "./FormField";
+import { PASSWORD_REQUIREMENTS, isPasswordStrong } from "../passwordPolicy";
 
 export function ChangePasswordForm({ onSuccess }: { onSuccess?: () => void }) {
   const { changePassword } = useAuth();
@@ -11,14 +12,15 @@ export function ChangePasswordForm({ onSuccess }: { onSuccess?: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [newPasswordTouched, setNewPasswordTouched] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(false);
 
-    if (newPassword.length < 8) {
-      setError("New password must be at least 8 characters.");
+    if (!isPasswordStrong(newPassword)) {
+      setError("New password doesn't meet the requirements below.");
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -32,6 +34,7 @@ export function ChangePasswordForm({ onSuccess }: { onSuccess?: () => void }) {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
+      setNewPasswordTouched(false);
       setSuccess(true);
       onSuccess?.();
     } catch (err) {
@@ -60,9 +63,22 @@ export function ChangePasswordForm({ onSuccess }: { onSuccess?: () => void }) {
           placeholder="New Password"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
+          onFocus={() => setNewPasswordTouched(true)}
           className="terminal-input"
         />
       </FormField>
+      {newPasswordTouched && (
+        <ul className="-mt-1 flex flex-col gap-0.5 text-xs">
+          {PASSWORD_REQUIREMENTS.map((req) => {
+            const met = req.test(newPassword);
+            return (
+              <li key={req.label} className={met ? "text-term-green" : "text-term-green/50"}>
+                {met ? "✓" : "○"} {req.label}
+              </li>
+            );
+          })}
+        </ul>
+      )}
       <FormField label="Confirm New Password">
         <input
           required
